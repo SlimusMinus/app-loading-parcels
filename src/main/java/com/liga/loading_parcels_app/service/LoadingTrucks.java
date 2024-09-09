@@ -1,4 +1,4 @@
-package com.liga.loading_parcels_app.util;
+package com.liga.loading_parcels_app.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,7 +8,7 @@ public class LoadingTrucks {
 
     private static final int TRUCK_SIZE = 6;
 
-    static char[][] createEmptyTruck() {
+    public static char[][] createEmptyTruck() {
         char[][] emptyTruck = new char[TRUCK_SIZE][TRUCK_SIZE];
         for (int i = 0; i < TRUCK_SIZE; i++) {
             Arrays.fill(emptyTruck[i], ' ');
@@ -31,7 +31,7 @@ public class LoadingTrucks {
         return trucks;
     }
 
-    static boolean placePackage(char[][] truck, int[][] parcel) {
+    public static boolean placePackage(char[][] truck, int[][] parcel) {
         for (int i = TRUCK_SIZE - parcel.length; i >= 0; i--) {
             for (int j = 0; j <= TRUCK_SIZE - parcel[0].length; j++) {
                 if (canPlace(truck, parcel, i, j)) {
@@ -43,7 +43,7 @@ public class LoadingTrucks {
         return false;
     }
 
-    static boolean canPlace(char[][] truck, int[][] pack, int row, int col) {
+    public static boolean canPlace(char[][] truck, int[][] pack, int row, int col) {
         for (int i = 0; i < pack.length; i++) {
             for (int j = 0; j < pack[i].length; j++) {
                 if (pack[i][j] != 0 && truck[row + i][col + j] != ' ') {
@@ -54,7 +54,7 @@ public class LoadingTrucks {
         return true;
     }
 
-    static void applyPackage(char[][] truck, int[][] pack, int row, int col) {
+    public static void applyPackage(char[][] truck, int[][] pack, int row, int col) {
         for (int i = 0; i < pack.length; i++) {
             for (int j = 0; j < pack[i].length; j++) {
                 if (pack[i][j] != 0) {
