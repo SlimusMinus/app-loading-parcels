@@ -1,11 +1,12 @@
 package com.liga.loadingParcelsApp.service;
 
-import com.liga.loadingParcelsApp.exception.NotFoundException;
 import com.liga.loadingParcelsApp.model.Package;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class ValidationParcels {
     private static final int[][] nine = new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}};
     private static final int[][] eight = new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}};
@@ -18,6 +19,7 @@ public class ValidationParcels {
     private static final int[][] one = new int[][]{{1}};
 
     public static boolean isValidation(List<Package> parcels) {
+        log.info("Начало проверки валидности посылок. Количество посылок: {}", parcels.size());
         boolean isValid;
         for (Package parcel : parcels) {
             int[][] content = parcel.getContent();
@@ -31,12 +33,14 @@ public class ValidationParcels {
                 case 3 -> Arrays.deepEquals(content, three);
                 case 2 -> Arrays.deepEquals(content, two);
                 case 1 -> Arrays.deepEquals(content, one);
-                default -> throw new NotFoundException("Некорректное число: " + content[0][0]);
+                default -> throw new IllegalArgumentException("Некорректное число: " + content[0][0]);
             };
             if (!isValid) {
+                log.warn("Посылка с содержимым {} не прошла проверку.", Arrays.deepToString(content));
                 return false;
             }
         }
+        log.info("Все посылки прошли проверку.");
         return true;
     }
 

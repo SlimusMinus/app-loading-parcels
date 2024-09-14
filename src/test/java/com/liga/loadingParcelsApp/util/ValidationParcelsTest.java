@@ -1,6 +1,5 @@
 package com.liga.loadingParcelsApp.util;
 
-import com.liga.loadingParcelsApp.exception.NotFoundException;
 import com.liga.loadingParcelsApp.service.ValidationParcels;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ class ValidationParcelsTest {
     @Test
     @DisplayName("выброс исключение при некорректных данных")
     void isValidationIncorrectNumber() {
-        assertThatThrownBy(() -> ValidationParcels.isValidation(parcelsWrong)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> ValidationParcels.isValidation(parcelsWrong)).isInstanceOf(IllegalArgumentException.class);
     }
 
 }

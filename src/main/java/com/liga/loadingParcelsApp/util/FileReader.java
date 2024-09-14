@@ -23,6 +23,7 @@ public class FileReader {
     public List<Package> getAllPackages(String fileName) {
         List<Package> packages = new ArrayList<>();
         Path filePath = Paths.get(fileName);
+        log.info("Начало чтения данных из файла: {}", fileName);
 
         try (Stream<String> lines = Files.lines(filePath)) {
             List<int[]> packageRows = new ArrayList<>();
@@ -34,17 +35,22 @@ public class FileReader {
                     packageRows.add(parseLine(line));
                 }
                 if (line.isEmpty() || !iterator.hasNext()) {
-                    if (!packageRows.isEmpty()) {
-                        packages.add(createPackage(packageRows));
-                        packageRows.clear();
-                    }
+                    emptyRow(packageRows, packages);
                 }
             }
+            log.info("Успешно считано {} посылок из файла: {}", packages.size(), fileName);
         } catch (IOException e) {
             log.error("Ошибка чтения файла по пути " + fileName + ": " + e.getMessage());
         }
 
         return packages;
+    }
+
+    private void emptyRow(List<int[]> packageRows, List<Package> packages) {
+        if (!packageRows.isEmpty()) {
+            packages.add(createPackage(packageRows));
+            packageRows.clear();
+        }
     }
 
     /**

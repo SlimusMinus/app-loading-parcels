@@ -24,7 +24,7 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что метод создает пустой кузов правильного размера, заполненный пробелами")
     void testCreateEmptyTruck() {
-        char[][] emptyTruck = LoadingTrucks.createEmptyTruck();
+        char[][] emptyTruck = loadingTrucks.createEmptyTruck();
         assertThat(TRUCK_SIZE).isEqualTo(emptyTruck.length);
         assertThat(TRUCK_SIZE).isEqualTo(emptyTruck[0].length);
         for (char[] row : emptyTruck) {
@@ -37,7 +37,7 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что можно поместить посылку на пустое место")
     void testCanPlaceValid() {
-        char[][] truck = LoadingTrucks.createEmptyTruck();
+        char[][] truck = loadingTrucks.createEmptyTruck();
         int[][] pack = {
                 {1, 1},
                 {1, 1}
@@ -48,7 +48,7 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что нельзя поместить посылку на уже занятое место.")
     void testCanPlaceInvalid() {
-        char[][] truck = LoadingTrucks.createEmptyTruck();
+        char[][] truck = loadingTrucks.createEmptyTruck();
         int[][] pack = {
                 {1, 1},
                 {1, 1}
@@ -60,7 +60,7 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка правильность размещения посылки в кузове")
     void testApplyPackage() {
-        char[][] truck = LoadingTrucks.createEmptyTruck();
+        char[][] truck = loadingTrucks.createEmptyTruck();
         int[][] pack = {
                 {1, 1},
                 {1, 1}
@@ -75,7 +75,7 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что посылка успешно помещается.")
     void testPlacePackageValid() {
-        char[][] truck = LoadingTrucks.createEmptyTruck();
+        char[][] truck = loadingTrucks.createEmptyTruck();
         int[][] pack = {
                 {2, 2}
         };
@@ -88,7 +88,7 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что нельзя поместить вторую посылку на уже занятую область")
     void testPlacePackageInvalid() {
-        char[][] truck = LoadingTrucks.createEmptyTruck();
+        char[][] truck = loadingTrucks.createEmptyTruck();
         int[][] pack1 = {
                 {3, 3, 3}
         };
@@ -110,7 +110,7 @@ class LoadingTrucksTest {
         packages.add(new Package(new int[][]{
                 {2, 2, 2}
         }));
-        List<char[][]> trucks = loadingTrucks.packPackages(packages);
+        List<char[][]> trucks = loadingTrucks.packPackages(packages, 2);
         char[][] truck1 = trucks.get(0);
         assertThat(truck1[5][0]).isEqualTo('1');
         assertThat(truck1[5][1]).isEqualTo('1');

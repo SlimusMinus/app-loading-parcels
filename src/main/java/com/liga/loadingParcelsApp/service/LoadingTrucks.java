@@ -1,25 +1,31 @@
 package com.liga.loadingParcelsApp.service;
 
 import com.liga.loadingParcelsApp.model.Package;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class LoadingTrucks {
 
     private static final int TRUCK_SIZE = 6;
+    private static int numberTruck = 1;
+
 
     /**
      * Создает пустой грузовик размером 6x6, заполненный пробелами ' '.
      *
      * @return двумерный массив символов, представляющий пустой грузовик.
      */
-    public static char[][] createEmptyTruck() {
+    public char[][] createEmptyTruck() {
+        log.trace("Создание пустого грузовика.");
         char[][] emptyTruck = new char[TRUCK_SIZE][TRUCK_SIZE];
         for (int i = 0; i < TRUCK_SIZE; i++) {
             Arrays.fill(emptyTruck[i], ' ');
         }
+
         return emptyTruck;
     }
 
@@ -29,20 +35,32 @@ public class LoadingTrucks {
      *
      * @param parcels Список двумерных массивов типа int, где каждый массив представляет одну посылку.
      * @return список упакованных грузовиков, каждый из которых представлен двумерным массивом символов.
+     * <p>Метод также вызывает {@link WriteTrucksInMemory#getLoadingTrucks(int, int)} для сохранения информации
+     * о номере грузовика и количестве посылок в этом грузовике. Это позволяет отслеживать распределение посылок
+     * между грузовиками.</p>
      */
-    public List<char[][]> packPackages(List<Package> parcels) {
+    public List<char[][]> packPackages(List<Package> parcels, int countTruck) {
+        log.info("Начало упаковки {} посылок.", parcels.size());
         List<char[][]> trucks = new ArrayList<>();
         char[][] emptyTruck = createEmptyTruck();
 
         for (Package parcel : parcels) {
             int[][] parcelContent = parcel.getContent();
+            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
             if (!placePackage(emptyTruck, parcelContent)) {
+                log.info("Грузовик заполнен, создается новый грузовик.");
+                numberTruck++;
                 trucks.add(emptyTruck);
                 emptyTruck = createEmptyTruck();
                 placePackage(emptyTruck, parcelContent);
             }
+            WriteTrucksInMemory.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
         trucks.add(emptyTruck);
+        log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
+        if (countTruck < trucks.size()) {
+            throw new IllegalStateException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+        }
         return trucks;
     }
 
@@ -57,11 +75,13 @@ public class LoadingTrucks {
         for (int i = TRUCK_SIZE - parcel.length; i >= 0; i--) {
             for (int j = 0; j <= TRUCK_SIZE - parcel[0].length; j++) {
                 if (canPlace(truck, parcel, i, j)) {
+                    log.debug("Посылка размещена в грузовике по координатам: ({}, {})", i, j);
                     applyPackage(truck, parcel, i, j);
                     return true;
                 }
             }
         }
+        log.warn("Нет места для посылки: {}", Arrays.deepToString(parcel));
         return false;
     }
 
@@ -99,6 +119,7 @@ public class LoadingTrucks {
                 truck[row + i][col + j] = (char) ('0' + pack[i][j]);
             }
         }
+        log.trace("Посылка успешно размещена в грузовике.");
     }
 
     /**
@@ -107,6 +128,7 @@ public class LoadingTrucks {
      * @param trucks Список грузовиков, каждый из которых представлен двумерным массивом символов.
      */
     public void printTrucks(List<char[][]> trucks) {
+        log.info("Начало вывода содержимого {} грузовиков.", trucks.size());
         System.out.println("++++++++");
         for (char[][] truck : trucks) {
             for (char[] row : truck) {
@@ -118,5 +140,6 @@ public class LoadingTrucks {
             }
             System.out.println("++++++++");
         }
+        log.info("Вывод содержимого завершен.");
     }
 }
