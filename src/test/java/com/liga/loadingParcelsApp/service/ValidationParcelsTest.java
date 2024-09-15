@@ -1,10 +1,9 @@
-package com.liga.loadingParcelsApp.util;
+package com.liga.loadingParcelsApp.service;
 
-import com.liga.loadingParcelsApp.service.ValidationParcels;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.liga.loadingParcelsApp.util.DataTest.*;
+import static com.liga.loadingParcelsApp.DataTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -27,5 +26,4 @@ class ValidationParcelsTest {
     void isValidationIncorrectNumber() {
         assertThatThrownBy(() -> ValidationParcels.isValidation(parcelsWrong)).isInstanceOf(IllegalArgumentException.class);
     }
-
 }

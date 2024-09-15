@@ -8,8 +8,9 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.liga.loadingParcelsApp.util.DataTest.TRUCK_SIZE;
+import static com.liga.loadingParcelsApp.DataTest.TRUCK_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тестирование класса LoadingTrucks")
 class LoadingTrucksTest {
@@ -19,6 +20,30 @@ class LoadingTrucksTest {
     @BeforeEach
     void setUp() {
         loadingTrucks = new LoadingTrucks();
+    }
+
+    @Test
+    @DisplayName("Проверка алгоритма равномерной погрузки")
+    public void testEvenlyDistributePackages() {
+        List<Package> parcels = List.of(
+                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Package(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
+        );
+        final List<char[][]> distributePackages = loadingTrucks.evenlyDistributePackages(parcels, 2);
+        assertThat(distributePackages.size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Проверка алгоритма равномерной погрузки на выброс исключения")
+    public void testEvenlyDistributePackagesException() {
+        List<Package> parcels = List.of(
+                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Package(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
+        );
+        assertThatThrownBy(() -> loadingTrucks.evenlyDistributePackages(parcels, 1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -97,6 +122,17 @@ class LoadingTrucksTest {
         };
         loadingTrucks.placePackage(truck, pack1);
         assertThat(loadingTrucks.placePackage(truck, pack2)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Проверка выброса исключения при недостаточном количестве грузовиков")
+    void testPlacePackageException() {
+        List<Package> parcels = List.of(
+                new Package(new int[][]{{1, 1}, {1, 1}}),
+                new Package(new int[][]{{2, 2, 2}, {2, 2, 2}}),
+                new Package(new int[][]{{3, 3, 3, 3}, {3, 3, 3, 3}})
+        );
+        assertThatThrownBy(() -> loadingTrucks.packPackages(parcels, 0)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

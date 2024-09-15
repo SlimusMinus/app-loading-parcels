@@ -59,8 +59,50 @@ public class LoadingTrucks {
         trucks.add(emptyTruck);
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
         if (countTruck < trucks.size()) {
-            throw new IllegalStateException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
+        return trucks;
+    }
+
+    /**
+     * Упаковывает посылки в грузовики с использованием алгоритма равномерного распределения.
+     * Распределяет посылки по грузовикам, чтобы каждый грузовик имел приблизительно одинаковую загрузку.
+     *
+     * @param parcels    Список посылок, представленных двумерными массивами int.
+     * @param countTruck Ожидаемое количество грузовиков.
+     * @return Список упакованных грузовиков.
+     * @throws IllegalArgumentException Если недостаточно грузовиков для размещения всех посылок.
+     */
+    public List<char[][]> evenlyDistributePackages(List<Package> parcels, int countTruck) {
+        log.info("Начало равномерного распределения {} посылок.", parcels.size());
+        List<char[][]> trucks = new ArrayList<>();
+        char[][] emptyTruck = createEmptyTruck();
+
+        List<int[][]> parcelQueue = new ArrayList<>(parcels.stream().map(Package::getContent).toList());
+        int sumParcels = parcelQueue.stream().mapToInt(parcel -> parcel[0][0]).sum();
+        int averageParcelSize = 5;
+        int maxLoading = sumParcels / countTruck + averageParcelSize;
+        log.info("Максимальная загрузка одного грузовика: {}", maxLoading);
+
+        for (Package parcel : parcels) {
+            int[][] parcelContent = parcel.getContent();
+            maxLoading -= parcelContent[0][0];
+            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
+            if (maxLoading <= 0 || !placePackage(emptyTruck, parcelContent)) {
+                log.info("Грузовик заполнен, создается новый грузовик.");
+                numberTruck++;
+                trucks.add(emptyTruck);
+                emptyTruck = createEmptyTruck();
+                placePackage(emptyTruck, parcelContent);
+                maxLoading = sumParcels / countTruck;
+            }
+            WriteTrucksInMemory.getLoadingTrucks(numberTruck, parcelContent[0][0]);
+        }
+        trucks.add(emptyTruck);
+        if (countTruck < trucks.size()) {
+            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+        }
+        log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
         return trucks;
     }
 

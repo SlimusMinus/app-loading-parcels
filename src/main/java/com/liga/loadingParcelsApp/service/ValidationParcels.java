@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Класс для проверки валидности посылок.
+ * Проверяет, соответствуют ли посылки заранее определенным шаблонам по содержимому.
+ */
 @Slf4j
 public class ValidationParcels {
     private static final int[][] nine = new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}};
@@ -18,6 +22,13 @@ public class ValidationParcels {
     private static final int[][] two = new int[][]{{2, 2}};
     private static final int[][] one = new int[][]{{1}};
 
+    /**
+     * Проверяет, что все посылки в списке соответствуют заранее определенным шаблонам.
+     * Логирует информацию о начале и результате проверки, а также предупреждения о несоответствиях.
+     *
+     * @param parcels список посылок для проверки
+     * @return {@code true}, если все посылки соответствуют шаблонам; {@code false} в противном случае
+     */
     public static boolean isValidation(List<Package> parcels) {
         log.info("Начало проверки валидности посылок. Количество посылок: {}", parcels.size());
         boolean isValid;
