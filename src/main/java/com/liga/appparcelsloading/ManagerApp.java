@@ -32,7 +32,6 @@ public class ManagerApp {
     private final ParcelValidator parcelValidator;
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
-    private TruckLoadAlgorithm truckLoadService;
 
     public ManagerApp() {
         FileReader fileReader = new FileReader();
@@ -59,6 +58,7 @@ public class ManagerApp {
      * </p>
      */
     public void startLoading() {
+        TruckLoadAlgorithm truckLoadService;
         log.info("Начало процесса загрузки посылок.");
         if (parcelValidator.isValid(parcels)) {
             log.info("Посылки прошли проверку на валидность.");
@@ -114,12 +114,12 @@ public class ManagerApp {
         final int PARCEL_INCREMENT = 1;
         for (Truck truck : truckList) {
             System.out.println("Грузовик " + truck.getName() + " содержит");
-            Map<Integer, Integer> parcels = new HashMap<>();
+            Map<Integer, Integer> integerMap = new HashMap<>();
             final List<Integer> truckParcels = truck.getParcels();
             for (Integer parcel : truckParcels) {
-                parcels.merge(parcel, PARCEL_INCREMENT, Integer::sum);
+                integerMap.merge(parcel, PARCEL_INCREMENT, Integer::sum);
             }
-            parcels.forEach((size, count) ->
+            integerMap.forEach((size, count) ->
                     System.out.println(count + " посылки(у) размером " + size)
             );
         }

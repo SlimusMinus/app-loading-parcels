@@ -14,10 +14,10 @@ public class ParcelLoaderService {
      * @param parcel Посылка, представленная двумерным массивом целых чисел.
      * @return true, если посылка успешно размещена; false, если нет места для посылки.
      */
-    public boolean placeParcels(char[][] truck, int[][] parcel, int truck_size) {
-        for (int i = truck_size - parcel.length; i >= 0; i--) {
+    public boolean placeParcels(char[][] truck, int[][] parcel, int truckSize) {
+        for (int i = truckSize - parcel.length; i >= 0; i--) {
             final int SIZE_PARCELS = 0;
-            for (int j = 0; j <= truck_size - parcel[SIZE_PARCELS].length; j++) {
+            for (int j = 0; j <= truckSize - parcel[SIZE_PARCELS].length; j++) {
                 if (canPlace(truck, parcel, i, j)) {
                     log.debug("Посылка размещена в грузовике по координатам: ({}, {})", i, j);
                     applyParcels(truck, parcel, i, j);

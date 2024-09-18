@@ -38,7 +38,9 @@ public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
         log.info("Максимальная загрузка одного грузовика: {}", maxLoading);
 
         trucks.add(getFullTruck(parcels, countTruck, maxLoading, emptyTruck, numberTruck, trucks, sumParcels));
-        validateTruckCount(countTruck, trucks);
+        if(validateTruckCount.validateTruckCount(countTruck, trucks)){
+            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+        }
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
 
         return trucks;

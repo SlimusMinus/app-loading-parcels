@@ -14,7 +14,7 @@ public abstract class TruckLoadAlgorithm {
     protected final TruckFactoryService truckFactoryService;
     protected final TruckCountValidate validateTruckCount;
 
-    public TruckLoadAlgorithm() {
+    protected TruckLoadAlgorithm() {
         parcelLoaderService = new ParcelLoaderService();
         truckFactoryService = new TruckFactoryService();
         validateTruckCount = new TruckCountValidate();
@@ -27,17 +27,6 @@ public abstract class TruckLoadAlgorithm {
      * @return список загруженных грузовиков
      */
     public abstract List<char[][]> loadParcels(List<Parcel> parcels, int countTruck);
-
-    /**
-     * Проверяет, что количество грузовиков достаточно для загрузки всех посылок.
-     * @param countTruck запланированное количество грузовиков
-     * @param trucks фактическое количество загруженных грузовиков
-     */
-    protected void validateTruckCount(int countTruck, List<char[][]> trucks) {
-        if (countTruck < trucks.size()) {
-            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
-        }
-    }
 
     /**
      * Создаёт пустой грузовик.

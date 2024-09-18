@@ -36,7 +36,9 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
 
         trucks.add(getFullTruck(parcels, emptyTruck, numberTruck, trucks));
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
-        validateTruckCount(countTruck, trucks);
+        if(validateTruckCount.validateTruckCount(countTruck, trucks)){
+            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+        }
         return trucks;
     }
 
