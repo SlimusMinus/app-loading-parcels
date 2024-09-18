@@ -1,6 +1,6 @@
-package com.liga.loadingParcelsApp.util;
+package com.liga.appparcelsloading.util;
 
-import com.liga.loadingParcelsApp.model.Truck;
+import com.liga.appparcelsloading.model.Truck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

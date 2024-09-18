@@ -1,11 +1,11 @@
-package com.liga.loadingParcelsApp.service;
+package com.liga.appparcelsloading.service;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
 @Slf4j
-public class TruckFactory {
+public class TruckFactoryService {
     /**
      * Создает пустой грузовик размером 6x6, заполненный пробелами ' '.
      *

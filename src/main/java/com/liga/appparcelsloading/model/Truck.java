@@ -1,4 +1,4 @@
-package com.liga.loadingParcelsApp.model;
+package com.liga.appparcelsloading.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

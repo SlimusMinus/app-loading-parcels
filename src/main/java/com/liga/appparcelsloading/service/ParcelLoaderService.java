@@ -1,11 +1,11 @@
-package com.liga.loadingParcelsApp.service;
+package com.liga.appparcelsloading.service;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
 @Slf4j
-public class ParcelsLoader {
+public class ParcelLoaderService {
 
     /**
      * Пытается разместить одну посылку в грузовике.

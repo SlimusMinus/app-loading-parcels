@@ -1,11 +1,11 @@
-package com.liga.loadingParcelsApp.service;
+package com.liga.appparcelsloading.service;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
-public class TruckPrinter {
+public class TruckPrinterService {
     /**
      * Выводит на экран содержимое всех грузовиков.
      *

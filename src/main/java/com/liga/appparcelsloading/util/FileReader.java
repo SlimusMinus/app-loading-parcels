@@ -1,6 +1,6 @@
-package com.liga.loadingParcelsApp.util;
+package com.liga.appparcelsloading.util;
 
-import com.liga.loadingParcelsApp.model.Parcel;
+import com.liga.appparcelsloading.model.Parcel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -26,17 +26,17 @@ public class FileReader {
         log.info("Начало чтения данных из файла: {}", fileName);
 
         try (Stream<String> lines = Files.lines(filePath)) {
-            List<int[]> ParcelRows = new ArrayList<>();
+            List<int[]> parcelRows = new ArrayList<>();
             Iterator<String> iterator = lines.iterator();
 
             while (iterator.hasNext()) {
                 String line = iterator.next();
                 log.debug("Чтение строки: {}", line);
                 if (!line.isEmpty()) {
-                    ParcelRows.add(parseLine(line));
+                    parcelRows.add(parseLine(line));
                 }
                 if (line.isEmpty() || !iterator.hasNext()) {
-                    emptyRow(ParcelRows, parcels);
+                    emptyRow(parcelRows, parcels);
                     log.debug("Добавлена посылка. Текущий размер списка посылок: {}", parcels.size());
                 }
             }

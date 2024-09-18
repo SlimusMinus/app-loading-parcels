@@ -1,6 +1,6 @@
-package com.liga.loadingParcelsApp;
+package com.liga.appparcelsloading;
 
-public class App {
+public class TruckLoadingApplication {
     public static void main(String[] args) {
         ManagerApp managerApp = new ManagerApp();
         managerApp.startLoading();

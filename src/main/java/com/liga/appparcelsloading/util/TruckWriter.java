@@ -1,8 +1,6 @@
-package com.liga.loadingParcelsApp.service;
+package com.liga.appparcelsloading.util;
 
-import com.liga.loadingParcelsApp.model.Truck;
-import com.liga.loadingParcelsApp.util.JsonFileWriter;
-import lombok.Getter;
+import com.liga.appparcelsloading.model.Truck;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,12 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Класс для управления и записи информации о грузовиках в память и файл.
+ * Класс для управления и записи информации о грузовиках в файл.
  * Хранит данные о грузовиках и их посылках, а также записывает эту информацию в файл в формате JSON.
  */
-
-public class WriteTrucksInMemoryAndFile {
-    @Getter
+public class TruckWriter {
     private static final Map<Integer, List<Integer>> loadTrucks = new HashMap<>();
     private static List<Integer> parcels = new ArrayList<>();
     private static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter();
@@ -47,5 +43,18 @@ public class WriteTrucksInMemoryAndFile {
             trucksList.add(newTruck);
         }
         JSON_FILE_WRITER.write(trucksList, fileName);
+    }
+
+    /**
+     * Возвращает копию карты загрузки грузовиков для использования в тестах.
+     *
+     * @return копия карты loadTrucks
+     */
+    public static Map<Integer, List<Integer>> getLoadTrucksCopy() {
+        Map<Integer, List<Integer>> copy = new HashMap<>();
+        for (Map.Entry<Integer, List<Integer>> entry : loadTrucks.entrySet()) {
+            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+        return copy;
     }
 }

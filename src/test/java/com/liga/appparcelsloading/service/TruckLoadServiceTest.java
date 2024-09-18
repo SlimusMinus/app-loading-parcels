@@ -1,6 +1,9 @@
-package com.liga.loadingParcelsApp.service;
+package com.liga.appparcelsloading.service;
 
-import com.liga.loadingParcelsApp.model.Parcel;
+import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
+import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
+import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
+import com.liga.appparcelsloading.model.Parcel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,22 +11,22 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.liga.loadingParcelsApp.DataTest.TRUCK_SIZE;
+import static com.liga.appparcelsloading.DataTest.TRUCK_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тестирование класса LoadingTrucks")
-class LoadingTrucksTest {
+class TruckLoadServiceTest {
 
-    private LoadingTrucks loadingTrucks;
-    private ParcelsLoader parcelsLoader;
-    private TruckFactory truckFactory;
+    private TruckLoadAlgorithm truckLoadService;
+    private ParcelLoaderService parcelLoaderService;
+    private TruckFactoryService truckFactoryService;
 
     @BeforeEach
     void setUp() {
-        loadingTrucks = new LoadingTrucks();
-        parcelsLoader = new ParcelsLoader();
-        truckFactory = new TruckFactory();
+        truckLoadService = new EvenTruckLoadingAlgorithm();
+        parcelLoaderService = new ParcelLoaderService();
+        truckFactoryService = new TruckFactoryService();
     }
 
     @Test
@@ -33,7 +36,7 @@ class LoadingTrucksTest {
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        final List<char[][]> distributeParcels = loadingTrucks.evenlyPackParcels(parcels, 2);
+        final List<char[][]> distributeParcels = truckLoadService.loadParcels(parcels, 2);
         assertThat(distributeParcels.size()).isEqualTo(2);
     }
 
@@ -47,13 +50,13 @@ class LoadingTrucksTest {
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        assertThatThrownBy(() -> loadingTrucks.evenlyPackParcels(parcels, 1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, 1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("Проверка, что метод создает пустой кузов правильного размера, заполненный пробелами")
     void testCreateEmptyTruck() {
-        char[][] emptyTruck = truckFactory.createEmptyTruck(TRUCK_SIZE);
+        char[][] emptyTruck = truckFactoryService.createEmptyTruck(TRUCK_SIZE);
         assertThat(TRUCK_SIZE).isEqualTo(emptyTruck.length);
         assertThat(TRUCK_SIZE).isEqualTo(emptyTruck[0].length);
         for (char[] row : emptyTruck) {
@@ -66,12 +69,12 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что посылка успешно помещается.")
     void testPlaceParcelValid() {
-        char[][] truck = truckFactory.createEmptyTruck(TRUCK_SIZE);
+        char[][] truck = truckFactoryService.createEmptyTruck(TRUCK_SIZE);
         int[][] pack = {
                 {2, 2}
         };
-        parcelsLoader.placeParcels(truck, pack, TRUCK_SIZE);
-        assertThat(parcelsLoader.placeParcels(truck, pack, TRUCK_SIZE)).isTrue();
+        parcelLoaderService.placeParcels(truck, pack, TRUCK_SIZE);
+        assertThat(parcelLoaderService.placeParcels(truck, pack, TRUCK_SIZE)).isTrue();
         assertThat('2').isEqualTo(truck[5][0]);
         assertThat('2').isEqualTo(truck[5][1]);
     }
@@ -79,26 +82,27 @@ class LoadingTrucksTest {
     @Test
     @DisplayName("Проверка, что нельзя поместить вторую посылку на уже занятую область")
     void testPlaceParcelInvalid() {
-        char[][] truck = truckFactory.createEmptyTruck(TRUCK_SIZE);
+        char[][] truck = truckFactoryService.createEmptyTruck(TRUCK_SIZE);
         int[][] pack1 = {
                 {3, 3, 3}
         };
         int[][] pack2 = {
                 {4, 4, 4}
         };
-        parcelsLoader.placeParcels(truck, pack1, TRUCK_SIZE);
-        assertThat(parcelsLoader.placeParcels(truck, pack2, TRUCK_SIZE)).isTrue();
+        parcelLoaderService.placeParcels(truck, pack1, TRUCK_SIZE);
+        assertThat(parcelLoaderService.placeParcels(truck, pack2, TRUCK_SIZE)).isTrue();
     }
 
     @Test
     @DisplayName("Проверка выброса исключения при недостаточном количестве грузовиков")
     void testPlaceParcelException() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm();
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{1, 1}, {1, 1}}),
                 new Parcel(new int[][]{{2, 2, 2}, {2, 2, 2}}),
                 new Parcel(new int[][]{{3, 3, 3, 3}, {3, 3, 3, 3}})
         );
-        assertThatThrownBy(() -> loadingTrucks.packParcels(parcels, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, 0)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -112,7 +116,7 @@ class LoadingTrucksTest {
         parcels.add(new Parcel(new int[][]{
                 {2, 2, 2}
         }));
-        List<char[][]> trucks = loadingTrucks.packParcels(parcels, 2);
+        List<char[][]> trucks = truckLoadService.loadParcels(parcels, 2);
         char[][] truck1 = trucks.get(0);
         assertThat(truck1[5][0]).isEqualTo('1');
         assertThat(truck1[5][1]).isEqualTo('1');
