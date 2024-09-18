@@ -26,6 +26,13 @@ import java.util.Scanner;
  */
 @Slf4j
 public class ManagerApp {
+    private final FileReader fileReader = new FileReader();
+    private final List<Parcel> parcels = fileReader.getAllParcels("parcels.txt");
+    private final ParcelValidator parcelValidator = new ParcelValidator();
+    private final JsonFileReader jsonFileReader = new JsonFileReader();
+    private final LoadingTrucks loadingTrucks = new LoadingTrucks();
+    private final TruckPrinter truckPrinter = new TruckPrinter();
+
     /**
      * Запускает процесс загрузки посылок и предоставляет пользователю выбор действий через консоль.
      * <p>
@@ -42,13 +49,6 @@ public class ManagerApp {
      * </ul>
      * </p>
      */
-    private final FileReader fileReader = new FileReader();
-    private final List<Parcel> parcels = fileReader.getAllParcels("parcels.txt");
-    private final ParcelValidator parcelValidator = new ParcelValidator();
-    private final JsonFileReader jsonFileReader = new JsonFileReader();
-    private final LoadingTrucks loadingTrucks = new LoadingTrucks();
-    private final TruckPrinter truckPrinter = new TruckPrinter();
-
     public void startLoading() {
         log.info("Начало процесса загрузки посылок.");
         if (parcelValidator.isValid(parcels)) {
@@ -61,22 +61,22 @@ public class ManagerApp {
                         3 - посмотреть сколько и какие посылки в машине из файла json
                         """);
                 Scanner scanner = new Scanner(System.in);
-                int choice = scanner.nextInt();
+                String choice = scanner.next();
                 switch (choice) {
-                    case 1:
+                    case "1":
                         List<char[][]> trucks = loadingTrucks.evenlyPackParcels(parcels, 4);
                         log.info("Успешно упаковано {} грузовиков.", trucks.size());
                         WriteTrucksInMemoryAndFile.writeTrucks("loading trucks.json");
                         truckPrinter.printTrucks(trucks);
                         break;
-                    case 2: {
+                    case "2": {
                         List<char[][]> trucks2 = loadingTrucks.packParcels(parcels, 4);
                         log.info("Успешно упаковано {} грузовиков.", trucks2.size());
                         WriteTrucksInMemoryAndFile.writeTrucks("loading trucks.json");
                         truckPrinter.printTrucks(trucks2);
                         break;
                     }
-                    case 3: {
+                    case "3": {
                         final List<Truck> truckList = jsonFileReader.read("loading trucks.json");
                         final int PARCEL_INCREMENT = 1;
                         for (Truck truck : truckList) {
@@ -89,7 +89,7 @@ public class ManagerApp {
                             parcels.forEach((size, count) ->
                                     System.out.println(count + " посылки(у) размером " + size)
                             );
-                        }
+                        } break;
                     }
                     default: System.exit(0);
                 }
