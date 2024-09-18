@@ -1,6 +1,7 @@
 package com.liga.loadingParcelsApp;
 
 import com.liga.loadingParcelsApp.model.Parcel;
+import com.liga.loadingParcelsApp.model.Truck;
 import com.liga.loadingParcelsApp.service.LoadingTrucks;
 import com.liga.loadingParcelsApp.service.TruckPrinter;
 import com.liga.loadingParcelsApp.service.ParcelValidator;
@@ -10,7 +11,9 @@ import com.liga.loadingParcelsApp.util.JsonFileReader;
 import com.liga.loadingParcelsApp.util.JsonFileWriter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -74,7 +77,19 @@ public class ManagerApp {
                         break;
                     }
                     case 3: {
-                        jsonFileReader.read("loading trucks.json");
+                        final List<Truck> truckList = jsonFileReader.read("loading trucks.json");
+                        final int PARCEL_INCREMENT = 1;
+                        for (Truck truck : truckList) {
+                            System.out.println("Грузовик " + truck.getName() + " содержит");
+                            Map<Integer, Integer> parcels = new HashMap<>();
+                            final List<Integer> truckParcels = truck.getParcels();
+                            for (Integer parcel : truckParcels) {
+                                parcels.merge(parcel, PARCEL_INCREMENT, Integer::sum);
+                            }
+                            parcels.forEach((size, count) ->
+                                    System.out.println(count + " посылки(у) размером " + size)
+                            );
+                        }
                     }
                     default: System.exit(0);
                 }
