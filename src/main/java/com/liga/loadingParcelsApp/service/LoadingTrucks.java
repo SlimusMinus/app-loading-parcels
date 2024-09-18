@@ -1,187 +1,139 @@
 package com.liga.loadingParcelsApp.service;
 
-import com.liga.loadingParcelsApp.model.Package;
+import com.liga.loadingParcelsApp.model.Parcel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Класс {@code LoadingTrucks} отвечает за управление процессом загрузки посылок в грузовики.
+ * Содержит два основных метода для упаковки посылок: равномерная загрузка и оптимальная загрузка.
+ */
 @Slf4j
 public class LoadingTrucks {
-
-    private static final int TRUCK_SIZE = 6;
-    private static int numberTruck = 1;
-
-
-    /**
-     * Создает пустой грузовик размером 6x6, заполненный пробелами ' '.
-     *
-     * @return двумерный массив символов, представляющий пустой грузовик.
-     */
-    public char[][] createEmptyTruck() {
-        log.trace("Создание пустого грузовика.");
-        char[][] emptyTruck = new char[TRUCK_SIZE][TRUCK_SIZE];
-        for (int i = 0; i < TRUCK_SIZE; i++) {
-            Arrays.fill(emptyTruck[i], ' ');
-        }
-
-        return emptyTruck;
-    }
+    private final int TRUCK_SIZE = 6;
+    private final int SIZE_PARCELS = 0;
+    private final ParcelsLoader parcelsLoader = new ParcelsLoader();
+    private final TruckFactory truckFactory = new TruckFactory();
 
     /**
-     * Принимает список посылок и пакует их в грузовики. Каждый грузовик имеет размер 6x6.
-     * Если текущий грузовик заполнен, создается новый.
+     * Метод для оптимальной загрузки посылок в грузовики.
+     * Загружает все посылки в минимальное количество грузовиков.
      *
-     * @param parcels Список двумерных массивов типа int, где каждый массив представляет одну посылку.
-     * @return список упакованных грузовиков, каждый из которых представлен двумерным массивом символов.
-     * <p>Метод также вызывает {@link WriteTrucksInMemory#getLoadingTrucks(int, int)} для сохранения информации
-     * о номере грузовика и количестве посылок в этом грузовике. Это позволяет отслеживать распределение посылок
-     * между грузовиками.</p>
+     * @param parcels    список посылок для загрузки
+     * @param countTruck количество грузовиков
+     * @return список загруженных грузовиков
      */
-    public List<char[][]> packPackages(List<Package> parcels, int countTruck) {
+    public List<char[][]> packParcels(List<Parcel> parcels, int countTruck) {
         log.info("Начало упаковки {} посылок.", parcels.size());
         List<char[][]> trucks = new ArrayList<>();
-        char[][] emptyTruck = createEmptyTruck();
+        int numberTruck = 1;
+        char[][] emptyTruck = truckFactory.createEmptyTruck(TRUCK_SIZE);
 
-        for (Package parcel : parcels) {
-            int[][] parcelContent = parcel.getContent();
-            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
-            if (!placePackage(emptyTruck, parcelContent)) {
-                log.info("Грузовик заполнен, создается новый грузовик.");
-                numberTruck++;
-                trucks.add(emptyTruck);
-                emptyTruck = createEmptyTruck();
-                placePackage(emptyTruck, parcelContent);
-            }
-            WriteTrucksInMemory.getLoadingTrucks(numberTruck, parcelContent[0][0]);
-        }
-        trucks.add(emptyTruck);
+        trucks.add(getFullTruck(parcels, countTruck, 0, emptyTruck, numberTruck, trucks, 0, false));
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
-        if (countTruck < trucks.size()) {
-            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
-        }
+        validateTruckCount(countTruck, trucks);
         return trucks;
     }
 
     /**
-     * Упаковывает посылки в грузовики с использованием алгоритма равномерного распределения.
-     * Распределяет посылки по грузовикам, чтобы каждый грузовик имел приблизительно одинаковую загрузку.
+     * Метод для равномерной загрузки посылок по грузовикам.
+     * Делит посылки поровну между грузовиками с учётом их размера.
      *
-     * @param parcels    Список посылок, представленных двумерными массивами int.
-     * @param countTruck Ожидаемое количество грузовиков.
-     * @return Список упакованных грузовиков.
-     * @throws IllegalArgumentException Если недостаточно грузовиков для размещения всех посылок.
+     * @param parcels    список посылок для загрузки
+     * @param countTruck количество грузовиков
+     * @return список загруженных грузовиков
      */
-    public List<char[][]> evenlyDistributePackages(List<Package> parcels, int countTruck) {
+    public List<char[][]> evenlyPackParcels(List<Parcel> parcels, int countTruck) {
         log.info("Начало равномерного распределения {} посылок.", parcels.size());
         List<char[][]> trucks = new ArrayList<>();
-        char[][] emptyTruck = createEmptyTruck();
+        int numberTruck = 1;
+        char[][] emptyTruck = truckFactory.createEmptyTruck(TRUCK_SIZE);
 
-        List<int[][]> parcelQueue = new ArrayList<>(parcels.stream().map(Package::getContent).toList());
-        int sumParcels = parcelQueue.stream().mapToInt(parcel -> parcel[0][0]).sum();
-        int averageParcelSize = 5;
-        int maxLoading = sumParcels / countTruck + averageParcelSize;
+        final int sumParcels = getSumParcels(parcels);
+        int maxLoading = getMaxLoading(countTruck, sumParcels);
         log.info("Максимальная загрузка одного грузовика: {}", maxLoading);
 
-        for (Package parcel : parcels) {
-            int[][] parcelContent = parcel.getContent();
-            maxLoading -= parcelContent[0][0];
-            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
-            if (maxLoading <= 0 || !placePackage(emptyTruck, parcelContent)) {
-                log.info("Грузовик заполнен, создается новый грузовик.");
-                numberTruck++;
-                trucks.add(emptyTruck);
-                emptyTruck = createEmptyTruck();
-                placePackage(emptyTruck, parcelContent);
-                maxLoading = sumParcels / countTruck;
-            }
-            WriteTrucksInMemory.getLoadingTrucks(numberTruck, parcelContent[0][0]);
-        }
-        trucks.add(emptyTruck);
-        if (countTruck < trucks.size()) {
-            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
-        }
+        trucks.add(getFullTruck(parcels, countTruck, maxLoading, emptyTruck, numberTruck, trucks, sumParcels, true));
+        validateTruckCount(countTruck, trucks);
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
+
         return trucks;
     }
 
     /**
-     * Пытается разместить одну посылку в грузовике.
+     * Вспомогательный метод для загрузки посылок в грузовик.
+     * Создает новый грузовик при необходимости и помещает посылки в грузовик.
      *
-     * @param truck  Грузовик, представленный двумерным массивом символов.
-     * @param parcel Посылка, представленная двумерным массивом целых чисел.
-     * @return true, если посылка успешно размещена; false, если нет места для посылки.
+     * @param parcels       список посылок
+     * @param countTruck    количество грузовиков
+     * @param maxLoading    максимальная загрузка грузовика (используется при равномерной загрузке)
+     * @param truck         текущий грузовик
+     * @param numberTruck   номер текущего грузовика
+     * @param trucks        список всех грузовиков
+     * @param sumParcels    общее количество посылок
+     * @param useMaxLoading использовать ли ограничение по загрузке
+     * @return загруженный грузовик
      */
-    public boolean placePackage(char[][] truck, int[][] parcel) {
-        for (int i = TRUCK_SIZE - parcel.length; i >= 0; i--) {
-            for (int j = 0; j <= TRUCK_SIZE - parcel[0].length; j++) {
-                if (canPlace(truck, parcel, i, j)) {
-                    log.debug("Посылка размещена в грузовике по координатам: ({}, {})", i, j);
-                    applyPackage(truck, parcel, i, j);
-                    return true;
+    private char[][] getFullTruck(List<Parcel> parcels, int countTruck, int maxLoading, char[][] truck, int numberTruck, List<char[][]> trucks, int sumParcels, boolean useMaxLoading) {
+        for (Parcel parcel : parcels) {
+            int[][] parcelContent = parcel.getContent();
+            if (useMaxLoading) {
+                maxLoading -= parcelContent[SIZE_PARCELS][SIZE_PARCELS];
+            }
+            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
+
+            if ((useMaxLoading && maxLoading <= 0) || !parcelsLoader.placeParcels(truck, parcelContent, TRUCK_SIZE)) {
+                log.info("Грузовик заполнен, создается новый грузовик.");
+                numberTruck++;
+                trucks.add(truck);
+                truck = truckFactory.createEmptyTruck(TRUCK_SIZE);
+                parcelsLoader.placeParcels(truck, parcelContent, TRUCK_SIZE);
+
+                if (useMaxLoading) {
+                    maxLoading = sumParcels / countTruck;
                 }
             }
+            WriteTrucksInMemoryAndFile.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
-        log.warn("Нет места для посылки: {}", Arrays.deepToString(parcel));
-        return false;
+        return truck;
     }
 
     /**
-     * Проверяет, можно ли разместить посылку в указанное место (координаты row, col) в грузовике.
+     * Проверяет, что количество грузовиков достаточно для загрузки всех посылок.
      *
-     * @param truck Грузовик, представленный двумерным массивом символов.
-     * @param pack  Посылка, представленная двумерным массивом целых чисел.
-     * @param row   Начальная строка для размещения посылки.
-     * @param col   Начальный столбец для размещения посылки.
-     * @return true, если посылку можно разместить; false, если место занято.
+     * @param countTruck запланированное количество грузовиков
+     * @param trucks     фактическое количество загруженных грузовиков
      */
-    public boolean canPlace(char[][] truck, int[][] pack, int row, int col) {
-        for (int i = 0; i < pack.length; i++) {
-            for (int j = 0; j < pack[i].length; j++) {
-                if (truck[row + i][col + j] != ' ') {
-                    return false;
-                }
-            }
+    private void validateTruckCount(int countTruck, List<char[][]> trucks) {
+        if (countTruck < trucks.size()) {
+            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
-        return true;
     }
 
     /**
-     * Размещает посылку в грузовике на заданные координаты (row, col).
+     * Вычисляет максимальную загрузку одного грузовика при равномерной загрузке.
      *
-     * @param truck Грузовик, представленный двумерным массивом символов.
-     * @param pack  Посылка, представленная двумерным массивом целых чисел.
-     * @param row   Начальная строка для размещения посылки.
-     * @param col   Начальный столбец для размещения посылки.
+     * @param countTruck количество грузовиков
+     * @param sumParcels общее количество посылок
+     * @return максимальная загрузка одного грузовика
      */
-    public void applyPackage(char[][] truck, int[][] pack, int row, int col) {
-        for (int i = 0; i < pack.length; i++) {
-            for (int j = 0; j < pack[i].length; j++) {
-                truck[row + i][col + j] = (char) ('0' + pack[i][j]);
-            }
-        }
-        log.trace("Посылка успешно размещена в грузовике.");
+    private int getMaxLoading(int countTruck, int sumParcels) {
+        final int AVERAGE_PARCELS_SIZE = 5;
+        return sumParcels / countTruck + AVERAGE_PARCELS_SIZE;
     }
 
     /**
-     * Выводит на экран содержимое всех грузовиков.
+     * Вычисляет суммарный объём всех посылок.
      *
-     * @param trucks Список грузовиков, каждый из которых представлен двумерным массивом символов.
+     * @param parcels список посылок
+     * @return суммарный объём всех посылок
      */
-    public void printTrucks(List<char[][]> trucks) {
-        log.info("Начало вывода содержимого {} грузовиков.", trucks.size());
-        System.out.println("++++++++");
-        for (char[][] truck : trucks) {
-            for (char[] row : truck) {
-                System.out.print("+");
-                for (char cell : row) {
-                    System.out.print(cell);
-                }
-                System.out.print("+\n");
-            }
-            System.out.println("++++++++");
-        }
-        log.info("Вывод содержимого завершен.");
+    private int getSumParcels(List<Parcel> parcels) {
+        List<int[][]> parcelQueue = new ArrayList<>(parcels.stream().map(Parcel::getContent).toList());
+        return parcelQueue.stream().mapToInt(parcel -> parcel[SIZE_PARCELS][SIZE_PARCELS]).sum();
     }
+
 }

@@ -1,7 +1,13 @@
-package com.liga.loadingParcelsApp.service;
+package com.liga.loadingParcelsApp;
 
-import com.liga.loadingParcelsApp.model.Package;
+import com.liga.loadingParcelsApp.model.Parcel;
+import com.liga.loadingParcelsApp.service.LoadingTrucks;
+import com.liga.loadingParcelsApp.service.TruckPrinter;
+import com.liga.loadingParcelsApp.service.ParcelValidator;
+import com.liga.loadingParcelsApp.service.WriteTrucksInMemoryAndFile;
 import com.liga.loadingParcelsApp.util.FileReader;
+import com.liga.loadingParcelsApp.util.JsonFileReader;
+import com.liga.loadingParcelsApp.util.JsonFileWriter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -12,35 +18,37 @@ import java.util.Scanner;
  * Он включает в себя метод для запуска процесса загрузки и взаимодействует с пользователем через консоль.
  * <p>
  * Класс использует {@link LoadingTrucks} для упаковки посылок и {@link FileReader} для чтения данных о посылках.
- * Также используется {@link ValidationParcels} для проверки валидности посылок и {@link JsonParser} для чтения данных из файла JSON.
+ * Также используется {@link ParcelValidator} для проверки валидности посылок и {@link JsonFileWriter} для чтения данных из файла JSON.
  * </p>
  */
 @Slf4j
-public class TruckService {
+public class ManagerApp {
     /**
      * Запускает процесс загрузки посылок и предоставляет пользователю выбор действий через консоль.
      * <p>
      * В этом методе выполняются следующие действия:
      * <ul>
      *     <li>Чтение списка посылок из файла "parcels.txt" с помощью {@link FileReader}.</li>
-     *     <li>Проверка валидности посылок с использованием {@link ValidationParcels}.</li>
+     *     <li>Проверка валидности посылок с использованием {@link ParcelValidator}.</li>
      *     <li>Предоставление пользователю меню для выбора алгоритма упаковки:</li>
      *     <ul>
-     *         <li>1 - Равномерная загрузка по грузовикам (метод {@link LoadingTrucks#evenlyDistributePackages(List, int)}).</li>
-     *         <li>2 - Оптимальная загрузка (метод {@link LoadingTrucks#packPackages(List, int)}).</li>
-     *         <li>3 - Просмотр содержимого грузовиков из файла JSON с использованием {@link JsonParser#readJsonTrucks(String)}.</li>
+     *         <li>1 - Равномерная загрузка по грузовикам (метод {@link LoadingTrucks#evenlyPackParcels(List, int)}).</li>
+     *         <li>2 - Оптимальная загрузка (метод {@link LoadingTrucks#packParcels(List, int)}).</li>
      *     </ul>
-     *     <li>В зависимости от выбранного действия, выводится информация о загрузке грузовиков в консоль и сохраняются данные в память с помощью {@link WriteTrucksInMemory}.</li>
+     *     <li>В зависимости от выбранного действия, выводится информация о загрузке грузовиков в консоль и сохраняются данные в память с помощью {@link WriteTrucksInMemoryAndFile}.</li>
      * </ul>
      * </p>
      */
-    public static void startLoading() {
-        log.info("Начало процесса загрузки посылок.");
-        FileReader fileReader = new FileReader();
-        List<Package> packages = fileReader.getAllPackages("parcels.txt");
-        LoadingTrucks loadingTrucks = new LoadingTrucks();
+    private final FileReader fileReader = new FileReader();
+    private final List<Parcel> parcels = fileReader.getAllParcels("parcels.txt");
+    private final ParcelValidator parcelValidator = new ParcelValidator();
+    private final JsonFileReader jsonFileReader = new JsonFileReader();
+    private final LoadingTrucks loadingTrucks = new LoadingTrucks();
+    private final TruckPrinter truckPrinter = new TruckPrinter();
 
-        if (ValidationParcels.isValidation(packages)) {
+    public void startLoading() {
+        log.info("Начало процесса загрузки посылок.");
+        if (parcelValidator.isValid(parcels)) {
             log.info("Посылки прошли проверку на валидность.");
             do {
                 System.out.println("""
@@ -53,21 +61,22 @@ public class TruckService {
                 int choice = scanner.nextInt();
                 switch (choice) {
                     case 1:
-                        List<char[][]> trucks = loadingTrucks.evenlyDistributePackages(packages, 4);
+                        List<char[][]> trucks = loadingTrucks.evenlyPackParcels(parcels, 4);
                         log.info("Успешно упаковано {} грузовиков.", trucks.size());
-                        WriteTrucksInMemory.writeTrucks();
-                        loadingTrucks.printTrucks(trucks);
+                        WriteTrucksInMemoryAndFile.writeTrucks("loading trucks.json");
+                        truckPrinter.printTrucks(trucks);
                         break;
                     case 2: {
-                        List<char[][]> trucks2 = loadingTrucks.packPackages(packages, 4);
+                        List<char[][]> trucks2 = loadingTrucks.packParcels(parcels, 4);
                         log.info("Успешно упаковано {} грузовиков.", trucks2.size());
-                        WriteTrucksInMemory.writeTrucks();
-                        loadingTrucks.printTrucks(trucks2);
+                        WriteTrucksInMemoryAndFile.writeTrucks("loading trucks.json");
+                        truckPrinter.printTrucks(trucks2);
                         break;
                     }
                     case 3: {
-                        JsonParser.readJsonTrucks("loading trucks.json");
+                        jsonFileReader.read("loading trucks.json");
                     }
+                    default: System.exit(0);
                 }
             } while (true);
         }

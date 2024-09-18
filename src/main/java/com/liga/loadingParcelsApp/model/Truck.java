@@ -13,14 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Truck {
-    /**
-     * Название грузовика.
-     */
     private String name;
-
-    /**
-     * Список посылок, которые находятся в грузовике.
-     * Каждый элемент списка представляет размер одной посылки.
-     */
     private List<Integer> parcels;
 }

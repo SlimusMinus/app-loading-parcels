@@ -1,5 +1,6 @@
 package com.liga.loadingParcelsApp.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -8,22 +9,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тестирование класса ValidationData")
-class ValidationParcelsTest {
+class ValidationParcelTest {
+    private ParcelValidator parcelValidator;
+
+    @BeforeEach
+    void setUp(){
+        parcelValidator = new ParcelValidator();
+    }
     @Test
     @DisplayName("тестирование валидных данных")
     void isValidationTrue() {
-        assertThat(ValidationParcels.isValidation(parcels)).isTrue();
+        assertThat(parcelValidator.isValid(PARCELS)).isTrue();
     }
 
     @Test
     @DisplayName("тестирование не валидных данных")
     void isValidationFalse() {
-        assertThat(ValidationParcels.isValidation(parcelsWrong2)).isFalse();
+        assertThat(parcelValidator.isValid(PARCEL_WRONG_2)).isFalse();
     }
 
     @Test
     @DisplayName("выброс исключение при некорректных данных")
     void isValidationIncorrectNumber() {
-        assertThatThrownBy(() -> ValidationParcels.isValidation(parcelsWrong)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> parcelValidator.isValid(PARCEL_WRONG)).isInstanceOf(IllegalArgumentException.class);
     }
 }

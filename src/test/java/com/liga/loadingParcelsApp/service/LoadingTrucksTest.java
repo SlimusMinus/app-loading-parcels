@@ -1,6 +1,6 @@
 package com.liga.loadingParcelsApp.service;
 
-import com.liga.loadingParcelsApp.model.Package;
+import com.liga.loadingParcelsApp.model.Parcel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,40 +16,44 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class LoadingTrucksTest {
 
     private LoadingTrucks loadingTrucks;
+    private ParcelsLoader parcelsLoader;
+    private TruckFactory truckFactory;
 
     @BeforeEach
     void setUp() {
         loadingTrucks = new LoadingTrucks();
+        parcelsLoader = new ParcelsLoader();
+        truckFactory = new TruckFactory();
     }
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки")
-    public void testEvenlyDistributePackages() {
-        List<Package> parcels = List.of(
-                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
-                new Package(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
+    public void testEvenlyDistributeParcels() {
+        List<Parcel> parcels = List.of(
+                new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        final List<char[][]> distributePackages = loadingTrucks.evenlyDistributePackages(parcels, 2);
-        assertThat(distributePackages.size()).isEqualTo(2);
+        final List<char[][]> distributeParcels = loadingTrucks.evenlyPackParcels(parcels, 2);
+        assertThat(distributeParcels.size()).isEqualTo(2);
     }
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки на выброс исключения")
-    public void testEvenlyDistributePackagesException() {
-        List<Package> parcels = List.of(
-                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
-                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
-                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
-                new Package(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
-                new Package(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
+    public void testEvenlyDistributeParcelsException() {
+        List<Parcel> parcels = List.of(
+                new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
+                new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        assertThatThrownBy(() -> loadingTrucks.evenlyDistributePackages(parcels, 1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> loadingTrucks.evenlyPackParcels(parcels, 1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("Проверка, что метод создает пустой кузов правильного размера, заполненный пробелами")
     void testCreateEmptyTruck() {
-        char[][] emptyTruck = loadingTrucks.createEmptyTruck();
+        char[][] emptyTruck = truckFactory.createEmptyTruck(TRUCK_SIZE);
         assertThat(TRUCK_SIZE).isEqualTo(emptyTruck.length);
         assertThat(TRUCK_SIZE).isEqualTo(emptyTruck[0].length);
         for (char[] row : emptyTruck) {
@@ -60,93 +64,55 @@ class LoadingTrucksTest {
     }
 
     @Test
-    @DisplayName("Проверка, что можно поместить посылку на пустое место")
-    void testCanPlaceValid() {
-        char[][] truck = loadingTrucks.createEmptyTruck();
-        int[][] pack = {
-                {1, 1},
-                {1, 1}
-        };
-        assertThat(loadingTrucks.canPlace(truck, pack, 0, 0)).isTrue();
-    }
-
-    @Test
-    @DisplayName("Проверка, что нельзя поместить посылку на уже занятое место.")
-    void testCanPlaceInvalid() {
-        char[][] truck = loadingTrucks.createEmptyTruck();
-        int[][] pack = {
-                {1, 1},
-                {1, 1}
-        };
-        loadingTrucks.applyPackage(truck, pack, 0, 0);
-        assertThat(loadingTrucks.canPlace(truck, pack, 0, 0)).isFalse();
-    }
-
-    @Test
-    @DisplayName("Проверка правильность размещения посылки в кузове")
-    void testApplyPackage() {
-        char[][] truck = loadingTrucks.createEmptyTruck();
-        int[][] pack = {
-                {1, 1},
-                {1, 1}
-        };
-        loadingTrucks.applyPackage(truck, pack, 0, 0);
-        assertThat('1').isEqualTo(truck[0][0]);
-        assertThat('1').isEqualTo(truck[0][1]);
-        assertThat('1').isEqualTo(truck[1][0]);
-        assertThat('1').isEqualTo(truck[1][1]);
-    }
-
-    @Test
     @DisplayName("Проверка, что посылка успешно помещается.")
-    void testPlacePackageValid() {
-        char[][] truck = loadingTrucks.createEmptyTruck();
+    void testPlaceParcelValid() {
+        char[][] truck = truckFactory.createEmptyTruck(TRUCK_SIZE);
         int[][] pack = {
                 {2, 2}
         };
-        loadingTrucks.placePackage(truck, pack);
-        assertThat(loadingTrucks.placePackage(truck, pack)).isTrue();
+        parcelsLoader.placeParcels(truck, pack, TRUCK_SIZE);
+        assertThat(parcelsLoader.placeParcels(truck, pack, TRUCK_SIZE)).isTrue();
         assertThat('2').isEqualTo(truck[5][0]);
         assertThat('2').isEqualTo(truck[5][1]);
     }
 
     @Test
     @DisplayName("Проверка, что нельзя поместить вторую посылку на уже занятую область")
-    void testPlacePackageInvalid() {
-        char[][] truck = loadingTrucks.createEmptyTruck();
+    void testPlaceParcelInvalid() {
+        char[][] truck = truckFactory.createEmptyTruck(TRUCK_SIZE);
         int[][] pack1 = {
                 {3, 3, 3}
         };
         int[][] pack2 = {
                 {4, 4, 4}
         };
-        loadingTrucks.placePackage(truck, pack1);
-        assertThat(loadingTrucks.placePackage(truck, pack2)).isTrue();
+        parcelsLoader.placeParcels(truck, pack1, TRUCK_SIZE);
+        assertThat(parcelsLoader.placeParcels(truck, pack2, TRUCK_SIZE)).isTrue();
     }
 
     @Test
     @DisplayName("Проверка выброса исключения при недостаточном количестве грузовиков")
-    void testPlacePackageException() {
-        List<Package> parcels = List.of(
-                new Package(new int[][]{{1, 1}, {1, 1}}),
-                new Package(new int[][]{{2, 2, 2}, {2, 2, 2}}),
-                new Package(new int[][]{{3, 3, 3, 3}, {3, 3, 3, 3}})
+    void testPlaceParcelException() {
+        List<Parcel> parcels = List.of(
+                new Parcel(new int[][]{{1, 1}, {1, 1}}),
+                new Parcel(new int[][]{{2, 2, 2}, {2, 2, 2}}),
+                new Parcel(new int[][]{{3, 3, 3, 3}, {3, 3, 3, 3}})
         );
-        assertThatThrownBy(() -> loadingTrucks.packPackages(parcels, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> loadingTrucks.packParcels(parcels, 0)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("Проверка общего процесса упаковки нескольких посылок в кузовы.")
-    void testPackPackages() {
-        List<Package> packages = new ArrayList<>();
-        packages.add(new Package(new int[][]{
+    void testPackParcels() {
+        List<Parcel> parcels = new ArrayList<>();
+        parcels.add(new Parcel(new int[][]{
                 {1, 1},
                 {1, 1}
         }));
-        packages.add(new Package(new int[][]{
+        parcels.add(new Parcel(new int[][]{
                 {2, 2, 2}
         }));
-        List<char[][]> trucks = loadingTrucks.packPackages(packages, 2);
+        List<char[][]> trucks = loadingTrucks.packParcels(parcels, 2);
         char[][] truck1 = trucks.get(0);
         assertThat(truck1[5][0]).isEqualTo('1');
         assertThat(truck1[5][1]).isEqualTo('1');

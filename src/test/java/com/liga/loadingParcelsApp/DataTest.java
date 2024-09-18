@@ -1,6 +1,6 @@
 package com.liga.loadingParcelsApp;
 
-import com.liga.loadingParcelsApp.model.Package;
+import com.liga.loadingParcelsApp.model.Parcel;
 
 import java.util.*;
 
@@ -30,24 +30,24 @@ public class DataTest {
         loadingTrucks.put(2, truck2Parcels);
     }
 
-    public static final List<Package> parcels = Arrays.asList(
-            new Package(nine),
-            new Package(eight),
-            new Package(seven),
-            new Package(five),
-            new Package(four),
-            new Package(three),
-            new Package(two),
-            new Package(one)
+    public static final List<Parcel> PARCELS = Arrays.asList(
+            new Parcel(nine),
+            new Parcel(eight),
+            new Parcel(seven),
+            new Parcel(five),
+            new Parcel(four),
+            new Parcel(three),
+            new Parcel(two),
+            new Parcel(one)
     );
 
-    public static final List<Package> parcelsWrong = Arrays.asList(
-            new Package(wrongOne),
-            new Package(wrongTwo)
+    public static final List<Parcel> PARCEL_WRONG = Arrays.asList(
+            new Parcel(wrongOne),
+            new Parcel(wrongTwo)
     );
 
-    public static final List<Package> parcelsWrong2 = Arrays.asList(
-            new Package(nineWrong),
-            new Package(eightWrong)
+    public static final List<Parcel> PARCEL_WRONG_2 = Arrays.asList(
+            new Parcel(nineWrong),
+            new Parcel(eightWrong)
     );
 }
