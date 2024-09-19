@@ -42,7 +42,7 @@ public class TruckWriter {
             Truck newTruck = new Truck("truck № " + entry.getKey(), entry.getValue());
             trucksList.add(newTruck);
         }
-        JSON_FILE_WRITER.write(trucksList, fileName);
+        JSON_FILE_WRITER.writeTrucks(trucksList, fileName);
     }
 
     /**

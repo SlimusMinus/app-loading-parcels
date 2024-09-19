@@ -39,6 +39,7 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
         if(validateTruckCount.validateTruckCount(countTruck, trucks)){
             throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
+        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
         return trucks;
     }
 

@@ -1,13 +1,16 @@
 package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.liga.appparcelsloading.model.Truck;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,33 +21,61 @@ import java.util.List;
 @Slf4j
 public class JsonFileWriter {
     /**
-     * Записывает список грузовиков в указанный JSON файл. Если файл уже существует,
-     * данные из него будут обновлены новыми грузовиками.
+     * Универсальный метод для записи данных в JSON файл.
+     * Если файл уже существует, данные из него будут обновлены новыми записями.
      *
-     * @param trucks   список грузовиков, которые нужно записать
+     * @param data     данные, которые нужно записать
      * @param fileName путь к файлу, в который будут записаны данные
+     * @param typeRef  тип данных для десериализации (например, List<Truck> или List<char[][]>)
+     * @param <T>      тип данных, которые записываются
+     * @return обновленный список записей
      */
-    public List<Truck> write(List<Truck> trucks, String fileName) {
-        List<Truck> existingTrucksList = new ArrayList<>();
+    public <T> List<T> write(List<T> data, String fileName, TypeReference<List<T>> typeRef) {
+        List<T> existingDataList = new ArrayList<>();
         Path filePath = Path.of(fileName);
-        log.info("Начало записи списка грузовиков в файл {}", fileName);
+        log.info("Начало записи данных в файл {}", fileName);
+
         // Чтение существующего файла, если он есть
         if (Files.exists(filePath)) {
             try {
-                existingTrucksList = ObjectMapperFactory.getInstance().readValue(filePath.toFile(), new TypeReference<>() {});
+                existingDataList = ObjectMapperFactory.getInstance().readValue(filePath.toFile(), typeRef);
                 log.info("Чтение существующих данных из файла {}", fileName);
             } catch (IOException e) {
                 log.error("Ошибка чтения файла {}: {}", fileName, e.getMessage());
             }
         }
-        // Добавление новых грузовиков и запись в файл
-        existingTrucksList.addAll(trucks);
-        try {
-            ObjectMapperFactory.getInstance().writeValue(filePath.toFile(), existingTrucksList);
-            log.info("Список грузовиков успешно обновлен в файле {}", fileName);
+
+        // Добавление новых данных и запись в файл
+        existingDataList.addAll(data);
+        try (Writer writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            ObjectWriter objectWriter = ObjectMapperFactory.getInstance().writerWithDefaultPrettyPrinter();
+            objectWriter.writeValue(writer, existingDataList);
+            log.info("Данные успешно обновлены в файле {}", fileName);
         } catch (IOException e) {
             log.error("Ошибка записи в файл {}: {}", fileName, e.getMessage());
         }
-        return existingTrucksList;
+        return existingDataList;
+    }
+
+    /**
+     * Записывает список грузовиков в указанный JSON файл.
+     *
+     * @param trucks   список грузовиков, которые нужно записать
+     * @param fileName путь к файлу
+     * @return обновленный список грузовиков
+     */
+    public List<Truck> writeTrucks(List<Truck> trucks, String fileName) {
+        return write(trucks, fileName, new TypeReference<>() {});
+    }
+
+    /**
+     * Записывает список массивов char[][] в указанный JSON файл.
+     *
+     * @param parcels  список массивов char[][], которые нужно записать
+     * @param fileName путь к файлу
+     * @return обновленный список массивов char[][]
+     */
+    public List<char[][]> writeParcels(List<char[][]> parcels, String fileName) {
+        return write(parcels, fileName, new TypeReference<>() {});
     }
 }

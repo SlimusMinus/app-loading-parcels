@@ -36,7 +36,7 @@ public class JsonFileWriterTest {
                 new Truck("Truck 2", List.of(7, 15))
         );
 
-        List<Truck> result = jsonFileWriter.write(trucks, TEST_FILE);
+        List<Truck> result = jsonFileWriter.writeTrucks(trucks, TEST_FILE);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getName()).isEqualTo("Truck 1");
@@ -54,8 +54,8 @@ public class JsonFileWriterTest {
                 new Truck("Truck 2", List.of(7, 15))
         );
 
-        jsonFileWriter.write(initialTrucks, TEST_FILE);
-        List<Truck> result = jsonFileWriter.write(newTrucks, TEST_FILE);
+        jsonFileWriter.writeTrucks(initialTrucks, TEST_FILE);
+        List<Truck> result = jsonFileWriter.writeTrucks(newTrucks, TEST_FILE);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getName()).isEqualTo("Truck 1");
@@ -65,7 +65,7 @@ public class JsonFileWriterTest {
     @Test
     @DisplayName("Проверка записи пустого списка грузовиков")
     void testWriteEmptyList() {
-        List<Truck> result = jsonFileWriter.write(Collections.emptyList(), TEST_FILE);
+        List<Truck> result = jsonFileWriter.writeTrucks(Collections.emptyList(), TEST_FILE);
         assertThat(result).isEmpty();
         assertThat(Files.exists(Paths.get(TEST_FILE))).isTrue();
     }

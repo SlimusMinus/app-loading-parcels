@@ -80,7 +80,6 @@ public class FileReader {
      */
     private Parcel createParcel(List<int[]> parcelRows) {
         log.debug("Создание объекта Parcel из списка строк");
-        log.debug("Создание объекта Parcel из списка строк");
         int[][] content = parcelRows.toArray(new int[0][]);
         return new Parcel(content);
     }

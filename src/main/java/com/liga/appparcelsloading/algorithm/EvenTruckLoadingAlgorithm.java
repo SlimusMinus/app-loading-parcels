@@ -42,7 +42,7 @@ public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
             throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
-
+        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
         return trucks;
     }
 

@@ -3,6 +3,7 @@ package com.liga.appparcelsloading.algorithm;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
+import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
 
 import java.util.List;
@@ -13,6 +14,8 @@ public abstract class TruckLoadAlgorithm {
     protected final ParcelLoaderService parcelLoaderService;
     protected final TruckFactoryService truckFactoryService;
     protected final TruckCountValidate validateTruckCount;
+    protected static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter();
+
 
     protected TruckLoadAlgorithm() {
         parcelLoaderService = new ParcelLoaderService();

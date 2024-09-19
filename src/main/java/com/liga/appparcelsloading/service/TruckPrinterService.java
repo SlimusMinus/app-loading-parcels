@@ -12,7 +12,7 @@ public class TruckPrinterService {
      * @param trucks Список грузовиков, каждый из которых представлен двумерным массивом символов.
      */
     public void printTrucks(List<char[][]> trucks) {
-        log.info("Начало вывода содержимого {} грузовиков.", trucks.size());
+        log.info("Начало вывода содержимого грузовика(ов).");
         System.out.println("++++++++");
         for (char[][] truck : trucks) {
             for (char[] row : truck) {
@@ -24,6 +24,5 @@ public class TruckPrinterService {
             }
             System.out.println("++++++++");
         }
-        log.info("Вывод содержимого завершен.");
     }
 }
