@@ -1,6 +1,7 @@
 package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.liga.appparcelsloading.fabric.ObjectMapperFactory;
 import com.liga.appparcelsloading.model.Truck;
 import lombok.extern.slf4j.Slf4j;
 

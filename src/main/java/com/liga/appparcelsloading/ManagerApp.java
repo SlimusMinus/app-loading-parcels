@@ -3,6 +3,8 @@ package com.liga.appparcelsloading;
 import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
+import com.liga.appparcelsloading.fabric.ServiceFactory;
+import com.liga.appparcelsloading.fabric.ValidateFactory;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
@@ -32,9 +34,11 @@ public class ManagerApp {
     private final ParcelValidator parcelValidator;
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
-    private final ParcelLoaderService parcelLoaderService = new ParcelLoaderService();
-    private final TruckFactoryService truckFactoryService = new TruckFactoryService();
-    private final TruckCountValidate validateTruckCount = new TruckCountValidate();
+    private final ServiceFactory factory = new ServiceFactory();
+    private final ValidateFactory validateFactory = new ValidateFactory();
+    private final ParcelLoaderService parcelLoaderService = factory.createParcelLoaderService();
+    private final TruckFactoryService truckFactoryService = factory.createTruckFactoryService();
+    private final TruckCountValidate validateTruckCount = validateFactory.createTruckCountValidate();
 
     public ManagerApp(List<Parcel> parcels, ParcelValidator parcelValidator, JsonFileReader jsonFileReader, TruckPrinterService truckPrinterService) {
         this.parcels = parcels;
@@ -147,7 +151,7 @@ public class ManagerApp {
      * Если индекс грузовика не превышает размер списка посылок, данные о посылках
      * выводятся с помощью сервиса {@code TruckPrinterService}.
      *
-     * @param fullTrucks список массивов посылок (char[][]) для каждого грузовика
+     * @param fullTrucks     список массивов посылок (char[][]) для каждого грузовика
      * @param fullTruckIndex индекс текущего грузовика в списке
      */
     private void readParcels(List<char[][]> fullTrucks, int fullTruckIndex) {
