@@ -5,12 +5,15 @@ import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.service.ParcelLoaderService;
+import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.service.TruckPrinterService;
 import com.liga.appparcelsloading.util.FileReader;
 import com.liga.appparcelsloading.util.JsonFileReader;
 import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.ParcelValidator;
+import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -29,13 +32,15 @@ public class ManagerApp {
     private final ParcelValidator parcelValidator;
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
+    private final ParcelLoaderService parcelLoaderService = new ParcelLoaderService();
+    private final TruckFactoryService truckFactoryService = new TruckFactoryService();
+    private final TruckCountValidate validateTruckCount = new TruckCountValidate();
 
-    public ManagerApp() {
-        FileReader fileReader = new FileReader();
-        parcels = fileReader.getAllParcels("parcels.txt");
-        parcelValidator = new ParcelValidator();
-        jsonFileReader = new JsonFileReader();
-        truckPrinterService = new TruckPrinterService();
+    public ManagerApp(List<Parcel> parcels, ParcelValidator parcelValidator, JsonFileReader jsonFileReader, TruckPrinterService truckPrinterService) {
+        this.parcels = parcels;
+        this.parcelValidator = parcelValidator;
+        this.jsonFileReader = jsonFileReader;
+        this.truckPrinterService = truckPrinterService;
     }
 
     /**
@@ -70,11 +75,11 @@ public class ManagerApp {
                 String choice = scanner.next();
                 switch (choice) {
                     case "1":
-                        truckLoadService = new EvenTruckLoadingAlgorithm();
+                        truckLoadService = new EvenTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     case "2": {
-                        truckLoadService = new OptimalTruckLoadingAlgorithm();
+                        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     }

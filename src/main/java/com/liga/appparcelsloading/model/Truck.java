@@ -2,6 +2,7 @@ package com.liga.appparcelsloading.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -10,7 +11,8 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Truck {
-    private final String name;
-    private final List<Integer> parcels;
+    private String name;
+    private List<Integer> parcels;
 }

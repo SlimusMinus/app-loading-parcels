@@ -1,7 +1,10 @@
 package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.service.ParcelLoaderService;
+import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.TruckWriter;
+import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -18,6 +21,11 @@ import java.util.List;
  */
 @Slf4j
 public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
+    private static final int SIZE_PARCELS = 0;
+
+    public EvenTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
+        super(parcelLoaderService, truckFactoryService, validateTruckCount);
+    }
 
     /**
      * Выполняет распределение посылок по грузовикам с использованием равномерного алгоритма загрузки.
