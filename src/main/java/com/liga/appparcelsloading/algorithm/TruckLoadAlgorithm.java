@@ -1,10 +1,8 @@
 package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.JsonFileWriter;
-import com.liga.appparcelsloading.validator.TruckCountValidate;
 
 import java.util.List;
 
