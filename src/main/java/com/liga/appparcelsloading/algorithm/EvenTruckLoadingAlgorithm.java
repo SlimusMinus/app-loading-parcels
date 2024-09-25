@@ -22,9 +22,13 @@ import java.util.List;
 @Slf4j
 public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
     private static final int SIZE_PARCELS = 0;
+    private final ParcelLoaderService parcelLoaderService;
+    private final TruckCountValidate validateTruckCount;
 
     public EvenTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
-        super(parcelLoaderService, truckFactoryService, validateTruckCount);
+        super(truckFactoryService);
+        this.parcelLoaderService = parcelLoaderService;
+        this.validateTruckCount = validateTruckCount;
     }
 
     /**

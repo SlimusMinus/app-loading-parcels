@@ -21,9 +21,13 @@ import java.util.List;
  */
 @Slf4j
 public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
+    private final ParcelLoaderService parcelLoaderService;
+    private final TruckCountValidate validateTruckCount;
 
     public OptimalTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
-        super(parcelLoaderService, truckFactoryService, validateTruckCount);
+        super(truckFactoryService);
+        this.parcelLoaderService = parcelLoaderService;
+        this.validateTruckCount = validateTruckCount;
     }
 
     /**

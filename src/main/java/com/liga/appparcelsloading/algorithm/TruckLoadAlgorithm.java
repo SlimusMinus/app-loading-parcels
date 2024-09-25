@@ -10,15 +10,11 @@ import java.util.List;
 
 public abstract class TruckLoadAlgorithm {
     protected static final int TRUCK_SIZE = 6;
-    protected final ParcelLoaderService parcelLoaderService;
     protected final TruckFactoryService truckFactoryService;
-    protected final TruckCountValidate validateTruckCount;
     protected static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter();
 
-    protected TruckLoadAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
-        this.parcelLoaderService = parcelLoaderService;
+    protected TruckLoadAlgorithm(TruckFactoryService truckFactoryService) {
         this.truckFactoryService = truckFactoryService;
-        this.validateTruckCount = validateTruckCount;
     }
 
     /**
