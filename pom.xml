@@ -9,11 +9,11 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <logback.version>1.5.6</logback.version>
+        <logback.version>1.5.5</logback.version>
         <slf4j.version>2.0.13</slf4j.version>
         <junit.version>5.9.0</junit.version>
         <mockito.version>4.5.1</mockito.version>
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
         <assertj.version>3.26.0</assertj.version>
         <jackson.version>2.15.0</jackson.version>
         <mockito-inline.version>5.2.0</mockito-inline.version>
@@ -46,6 +46,12 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Mockito -->
         <dependency>
@@ -64,8 +70,8 @@
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.0</version> <!-- Убедитесь, что версия соответствует вашей версии SLF4J -->
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -80,7 +86,6 @@
             <scope>compile</scope>
         </dependency>
 
-
     </dependencies>
 
     <build>
@@ -93,6 +98,11 @@
                     <source>16</source>
                     <target>16</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version> <!-- Add the version -->
             </plugin>
         </plugins>
     </build>

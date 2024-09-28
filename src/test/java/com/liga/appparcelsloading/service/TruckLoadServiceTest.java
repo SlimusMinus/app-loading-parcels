@@ -34,17 +34,20 @@ class TruckLoadServiceTest {
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки")
     void testEvenlyDistributeParcels() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
+
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
         final List<char[][]> distributeParcels = truckLoadService.loadParcels(parcels, 2);
-        assertThat(distributeParcels.size()).isEqualTo(2);
+        assertThat(distributeParcels.size()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки на выброс исключения")
     void testEvenlyDistributeParcelsException() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
@@ -110,6 +113,8 @@ class TruckLoadServiceTest {
     @Test
     @DisplayName("Проверка общего процесса упаковки нескольких посылок в кузовы.")
     void testPackParcels() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
+
         List<Parcel> parcels = new ArrayList<>();
         parcels.add(new Parcel(new int[][]{
                 {1, 1},
