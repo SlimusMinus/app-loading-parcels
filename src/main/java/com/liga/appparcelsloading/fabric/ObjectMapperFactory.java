@@ -1,4 +1,4 @@
-package com.liga.appparcelsloading.util;
+package com.liga.appparcelsloading.fabric;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

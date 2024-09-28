@@ -1,7 +1,11 @@
 package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.service.ParcelLoaderService;
+import com.liga.appparcelsloading.service.TruckFactoryService;
+import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.TruckWriter;
+import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -17,6 +21,14 @@ import java.util.List;
  */
 @Slf4j
 public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
+    private final ParcelLoaderService parcelLoaderService;
+    private final TruckCountValidate validateTruckCount;
+
+    public OptimalTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
+        super(truckFactoryService);
+        this.parcelLoaderService = parcelLoaderService;
+        this.validateTruckCount = validateTruckCount;
+    }
 
     /**
      * Выполняет распределение посылок по грузовикам с использованием оптимального алгоритма загрузки.
@@ -39,6 +51,7 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
         if(validateTruckCount.validateTruckCount(countTruck, trucks)){
             throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
+        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
         return trucks;
     }
 

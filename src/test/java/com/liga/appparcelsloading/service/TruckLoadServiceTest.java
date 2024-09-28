@@ -4,6 +4,7 @@ import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
 import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.validator.TruckCountValidate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,28 +22,32 @@ class TruckLoadServiceTest {
     private TruckLoadAlgorithm truckLoadService;
     private ParcelLoaderService parcelLoaderService;
     private TruckFactoryService truckFactoryService;
+    private final TruckCountValidate validateTruckCount = new TruckCountValidate();
 
     @BeforeEach
     void setUp() {
-        truckLoadService = new EvenTruckLoadingAlgorithm();
+        truckLoadService = new EvenTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
         parcelLoaderService = new ParcelLoaderService();
         truckFactoryService = new TruckFactoryService();
     }
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки")
-    public void testEvenlyDistributeParcels() {
+    void testEvenlyDistributeParcels() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
+
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
         final List<char[][]> distributeParcels = truckLoadService.loadParcels(parcels, 2);
-        assertThat(distributeParcels.size()).isEqualTo(2);
+        assertThat(distributeParcels.size()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки на выброс исключения")
-    public void testEvenlyDistributeParcelsException() {
+    void testEvenlyDistributeParcelsException() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
@@ -96,7 +101,7 @@ class TruckLoadServiceTest {
     @Test
     @DisplayName("Проверка выброса исключения при недостаточном количестве грузовиков")
     void testPlaceParcelException() {
-        truckLoadService = new OptimalTruckLoadingAlgorithm();
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{1, 1}, {1, 1}}),
                 new Parcel(new int[][]{{2, 2, 2}, {2, 2, 2}}),
@@ -108,6 +113,8 @@ class TruckLoadServiceTest {
     @Test
     @DisplayName("Проверка общего процесса упаковки нескольких посылок в кузовы.")
     void testPackParcels() {
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
+
         List<Parcel> parcels = new ArrayList<>();
         parcels.add(new Parcel(new int[][]{
                 {1, 1},

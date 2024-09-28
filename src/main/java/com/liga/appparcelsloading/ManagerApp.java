@@ -3,20 +3,22 @@ package com.liga.appparcelsloading;
 import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
+import com.liga.appparcelsloading.fabric.ServiceFactory;
+import com.liga.appparcelsloading.fabric.ValidateFactory;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.service.ParcelLoaderService;
+import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.service.TruckPrinterService;
 import com.liga.appparcelsloading.util.FileReader;
 import com.liga.appparcelsloading.util.JsonFileReader;
 import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.ParcelValidator;
+import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Класс {@code TruckService} представляет собой сервис для управления процессом загрузки посылок в грузовики.
@@ -32,13 +34,17 @@ public class ManagerApp {
     private final ParcelValidator parcelValidator;
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
+    private final ServiceFactory factory = new ServiceFactory();
+    private final ValidateFactory validateFactory = new ValidateFactory();
+    private final ParcelLoaderService parcelLoaderService = factory.createParcelLoaderService();
+    private final TruckFactoryService truckFactoryService = factory.createTruckFactoryService();
+    private final TruckCountValidate validateTruckCount = validateFactory.createTruckCountValidate();
 
-    public ManagerApp() {
-        FileReader fileReader = new FileReader();
-        parcels = fileReader.getAllParcels("parcels.txt");
-        parcelValidator = new ParcelValidator();
-        jsonFileReader = new JsonFileReader();
-        truckPrinterService = new TruckPrinterService();
+    public ManagerApp(List<Parcel> parcels, ParcelValidator parcelValidator, JsonFileReader jsonFileReader, TruckPrinterService truckPrinterService) {
+        this.parcels = parcels;
+        this.parcelValidator = parcelValidator;
+        this.jsonFileReader = jsonFileReader;
+        this.truckPrinterService = truckPrinterService;
     }
 
     /**
@@ -73,11 +79,11 @@ public class ManagerApp {
                 String choice = scanner.next();
                 switch (choice) {
                     case "1":
-                        truckLoadService = new EvenTruckLoadingAlgorithm();
+                        truckLoadService = new EvenTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     case "2": {
-                        truckLoadService = new OptimalTruckLoadingAlgorithm();
+                        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     }
@@ -107,21 +113,51 @@ public class ManagerApp {
 
     /**
      * Метод для чтения данных о посылках в грузовиках из JSON-файла.
-     * Выводит в консоль информацию о каждом грузовике и количестве посылок определенного размера.
+     * Для каждого грузовика выводит информацию о посылках и их размере.
+     * Использует два файла JSON: один для списка грузовиков, другой для данных о посылках.
      */
     private void readJson() {
-        final List<Truck> truckList = jsonFileReader.read("loading trucks.json");
-        final int PARCEL_INCREMENT = 1;
+        final List<Truck> truckList = jsonFileReader.readTrucks("loading trucks.json");
+        final List<char[][]> fullTrucks = jsonFileReader.readParcels("loading parcels.json");
+        int fullTruckIndex = 0;
         for (Truck truck : truckList) {
-            System.out.println("Грузовик " + truck.getName() + " содержит");
-            Map<Integer, Integer> integerMap = new HashMap<>();
-            final List<Integer> truckParcels = truck.getParcels();
-            for (Integer parcel : truckParcels) {
-                integerMap.merge(parcel, PARCEL_INCREMENT, Integer::sum);
-            }
-            integerMap.forEach((size, count) ->
-                    System.out.println(count + " посылки(у) размером " + size)
-            );
+            readParcels(fullTrucks, fullTruckIndex);
+            fullTruckIndex++;
+            readFullTruck(truck);
+        }
+    }
+
+    /**
+     * Выводит в консоль информацию о посылках в грузовике.
+     * Определяет количество посылок каждого размера.
+     *
+     * @param truck объект Truck, содержащий информацию о грузовике и его посылках
+     */
+    private static void readFullTruck(Truck truck) {
+        final int parcelIncrement = 1;
+        System.out.println("Грузовик " + truck.getName() + " содержит");
+        Map<Integer, Integer> integerMap = new HashMap<>();
+        final List<Integer> truckParcels = truck.getParcels();
+        for (Integer parcel : truckParcels) {
+            integerMap.merge(parcel, parcelIncrement, Integer::sum);
+        }
+        integerMap.forEach((size, count) ->
+                System.out.println(count + " посылки(у) размером " + size)
+        );
+    }
+
+    /**
+     * Выводит в консоль содержимое посылок в грузовике по его индексу.
+     * Если индекс грузовика не превышает размер списка посылок, данные о посылках
+     * выводятся с помощью сервиса {@code TruckPrinterService}.
+     *
+     * @param fullTrucks     список массивов посылок (char[][]) для каждого грузовика
+     * @param fullTruckIndex индекс текущего грузовика в списке
+     */
+    private void readParcels(List<char[][]> fullTrucks, int fullTruckIndex) {
+        if (fullTruckIndex < fullTrucks.size()) {
+            final char[][] fullTruck = fullTrucks.get(fullTruckIndex);
+            truckPrinterService.printTrucks(Collections.singletonList(fullTruck));
         }
     }
 }
