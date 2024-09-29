@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.Truck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,11 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonFileReaderTest {
 
-    private final JsonFileReader jsonFileReader;
-
-    public JsonFileReaderTest(JsonFileReader jsonFileReader) {
-        this.jsonFileReader = jsonFileReader;
-    }
+    private final JsonFileReader jsonFileReader = new JsonFileReader(new ObjectMapper());
 
     @Test
     @DisplayName("Проверка чтения данных из JSON файла")

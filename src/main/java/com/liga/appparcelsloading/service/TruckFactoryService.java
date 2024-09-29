@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 @Slf4j
-@Service
 public class TruckFactoryService {
     /**
      * Создает пустой грузовик размером 6x6, заполненный пробелами ' '.

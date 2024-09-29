@@ -5,7 +5,9 @@ import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
+import com.liga.appparcelsloading.service.ParcelService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.service.TruckPrinterService;
 import com.liga.appparcelsloading.util.FileReader;
@@ -40,6 +42,10 @@ public class ManagerApp implements CommandLineRunner {
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
     private final JsonFileWriter jsonFileWriter;
+    private final ParcelService parcelService;
+    private final ParcelRepository repository;
+    private final Scanner scanner;
+
     /**
      * Запускает процесс загрузки посылок и предоставляет пользователю выбор действий через консоль.
      * <p>
@@ -49,8 +55,8 @@ public class ManagerApp implements CommandLineRunner {
      *     <li>Проверка валидности посылок с использованием {@link ParcelValidator}.</li>
      *     <li>Предоставление пользователю меню для выбора алгоритма упаковки:</li>
      *     <ul>
-     *         <li>1 - Равномерная загрузка по грузовикам (метод {@link TruckLoadAlgorithm#loadParcels(List, int)}).</li>
-     *         <li>2 - Оптимальная загрузка (метод {@link TruckLoadAlgorithm#loadParcels(List, int)}).</li>
+     *         <li>1 - Равномерная загрузка по грузовикам (метод {@link TruckLoadAlgorithm#loadParcels(List, int, int)}).</li>
+     *         <li>2 - Оптимальная загрузка (метод {@link TruckLoadAlgorithm#loadParcels(List, int, int)}).</li>
      *     </ul>
      *     <li>В зависимости от выбранного действия, выводится информация о загрузке грузовиков в консоль и сохраняются данные в память с помощью {@link TruckWriter}.</li>
      * </ul>
@@ -59,7 +65,7 @@ public class ManagerApp implements CommandLineRunner {
     public void startLoading() {
         TruckLoadAlgorithm truckLoadService;
         log.info("Начало процесса загрузки посылок.");
-        if (parcelValidator.isValid(getParcelsFromFile())) {
+        if (parcelValidator.isValid(getAllParcels())) {
             log.info("Посылки прошли проверку на валидность.");
             do {
                 System.out.println("""
@@ -67,8 +73,8 @@ public class ManagerApp implements CommandLineRunner {
                         1 - проверить алгоритм: равномерная погрузка по машинам
                         2 - проверить алгоритм: максимально качественная погрузка
                         3 - посмотреть сколько и какие посылки в машине из файла json
+                        4 - редактировать посылки
                         """);
-                Scanner scanner = new Scanner(System.in);
                 String choice = scanner.next();
                 switch (choice) {
                     case "1":
@@ -82,6 +88,10 @@ public class ManagerApp implements CommandLineRunner {
                     }
                     case "3": {
                         readJson();
+                        break;
+                    }
+                    case "4": {
+                        parcelService.parcelsManager();
                         break;
                     }
                     default:
@@ -98,7 +108,11 @@ public class ManagerApp implements CommandLineRunner {
      * @param truckLoadService выбранный алгоритм загрузки {@link TruckLoadAlgorithm}
      */
     private void algorithmLoadingParcels(TruckLoadAlgorithm truckLoadService) {
-        List<char[][]> trucks = truckLoadService.loadParcels(getParcelsFromFile(), 4);
+        System.out.println("Введите размерность грузовика");
+        int truckSize = scanner.nextInt();
+        System.out.println("Введите количество грузиков для погрузки посылок");
+        int countTruck = scanner.nextInt();
+        List<char[][]> trucks = truckLoadService.loadParcels(getAllParcels(), countTruck, truckSize);
         log.info("Успешно упаковано {} грузовиков.", trucks.size());
         TruckWriter.writeTrucks("loading trucks.json");
         truckPrinterService.printTrucks(trucks);
@@ -154,9 +168,8 @@ public class ManagerApp implements CommandLineRunner {
         }
     }
 
-    private List<Parcel> getParcelsFromFile(){
-        FileReader fileReader = new FileReader();
-        return fileReader.getAllParcels("parcels.txt");
+    private List<Parcel> getAllParcels(){
+        return repository.getAll();
     }
 
     @Override

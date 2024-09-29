@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 @Slf4j
-@Service
 public class ParcelLoaderService {
 
     /**
@@ -16,7 +15,7 @@ public class ParcelLoaderService {
      * @param parcel Посылка, представленная двумерным массивом целых чисел.
      * @return true, если посылка успешно размещена; false, если нет места для посылки.
      */
-    public boolean placeParcels(char[][] truck, int[][] parcel, int truckSize) {
+    public boolean placeParcels(char[][] truck, char[][] parcel, int truckSize) {
         for (int i = truckSize - parcel.length; i >= 0; i--) {
             final int SIZE_PARCELS = 0;
             for (int j = 0; j <= truckSize - parcel[SIZE_PARCELS].length; j++) {
@@ -40,7 +39,7 @@ public class ParcelLoaderService {
      * @param col   Начальный столбец для размещения посылки.
      * @return true, если посылку можно разместить; false, если место занято.
      */
-    private boolean canPlace(char[][] truck, int[][] pack, int row, int col) {
+    private boolean canPlace(char[][] truck, char[][] pack, int row, int col) {
         for (int i = 0; i < pack.length; i++) {
             for (int j = 0; j < pack[i].length; j++) {
                 if (truck[row + i][col + j] != ' ') {
@@ -59,11 +58,9 @@ public class ParcelLoaderService {
      * @param row   Начальная строка для размещения посылки.
      * @param col   Начальный столбец для размещения посылки.
      */
-    private void applyParcels(char[][] truck, int[][] pack, int row, int col) {
+    private void applyParcels(char[][] truck, char[][] pack, int row, int col) {
         for (int i = 0; i < pack.length; i++) {
-            for (int j = 0; j < pack[i].length; j++) {
-                truck[row + i][col + j] = (char) ('0' + pack[i][j]);
-            }
+            System.arraycopy(pack[i], 0, truck[row + i], col, pack[i].length);
         }
         log.trace("Посылка успешно размещена в грузовике.");
     }

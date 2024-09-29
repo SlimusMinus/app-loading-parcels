@@ -1,11 +1,13 @@
 package com.liga.appparcelsloading.util;
 
 import com.liga.appparcelsloading.model.Parcel;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class ParcelMapper {
 
     private final List<String> names = List.of("Телевизор", "Кофемашина", "Чайник", "Холодильник", "Плита", "Приставка", "Комбайн", "Пылесос", "Телефон", "Наушники");
@@ -42,18 +44,34 @@ public class ParcelMapper {
         return fileReader.getAllParcels("parcels.txt");
     }
 
-    public int[][] setWeight(int weight) {
-        return switch (weight){
+    public int[][] setHorizontalForm(int weight) {
+        return switch (weight) {
             case 1 -> new int[][]{{1}};
-            case 2 -> new int[][]{{2,2}};
-            case 3 -> new int[][]{{3,3,3}};
-            case 4 -> new int[][]{{4,4,4,4}};
-            case 5 -> new int[][]{{5,5,5,5,5}};
-            case 6 -> new int[][]{{6,6,6},{6,6,6}};
-            case 7 -> new int[][]{{7,7,7},{7,7,7,7}};
-            case 8 -> new int[][]{{8,8,8,8},{8,8,8,8}};
-            case 9 -> new int[][]{{9,9,9},{9,9,9},{9,9,9}};
+            case 2 -> new int[][]{{2, 2}};
+            case 3 -> new int[][]{{3, 3, 3}};
+            case 4 -> new int[][]{{4, 4, 4, 4}};
+            case 5 -> new int[][]{{5, 5, 5, 5, 5}};
+            case 6 -> new int[][]{{6, 6, 6}, {6, 6, 6}};
+            case 7 -> new int[][]{{7, 7, 7}, {7, 7, 7, 7}};
+            case 8 -> new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}};
+            case 9 -> new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}};
             default -> new int[][]{};
         };
     }
+
+    public int[][] setVerticalForm(int weight) {
+        return switch (weight) {
+            case 1 -> new int[][]{{1}};
+            case 2 -> new int[][]{{2}, {2}};
+            case 3 -> new int[][]{{3}, {3}, {3}};
+            case 4 -> new int[][]{{4}, {4}, {4}, {4}};
+            case 5 -> new int[][]{{5}, {5}, {5}, {5}, {5}};
+            case 6 -> new int[][]{{6, 6}, {6, 6}, {6, 6}};
+            case 7 -> new int[][]{{7, 7}, {7, 7}, {7, 7}, {7}};
+            case 8 -> new int[][]{{8, 8}, {8, 8}, {8, 8}, {8, 8}};
+            case 9 -> new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}};
+            default -> new int[][]{};
+        };
+    }
+
 }

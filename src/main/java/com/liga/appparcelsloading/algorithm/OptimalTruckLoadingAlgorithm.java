@@ -20,14 +20,14 @@ import java.util.List;
  * </p>
  */
 @Slf4j
-public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
+public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
     private final TruckCountValidate validateTruckCount;
     private final JsonFileWriter jsonFileWriter;
-
+    private final TruckFactoryService truckFactoryService;
 
     public OptimalTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService, TruckCountValidate validateTruckCount, JsonFileWriter jsonFileWriter) {
-        super(truckFactoryService);
+        this.truckFactoryService = truckFactoryService;
         this.parcelLoaderService = parcelLoaderService;
         this.validateTruckCount = validateTruckCount;
         this.jsonFileWriter = jsonFileWriter;
@@ -40,16 +40,17 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
      *
      * @param parcels   список посылок для распределения
      * @param countTruck количество грузовиков, доступных для загрузки
+     * @param truckSize размерность грузовика
      * @return список массивов символов, представляющих состояние грузовиков после загрузки
      */
     @Override
-    public List<char[][]> loadParcels(List<Parcel> parcels, int countTruck) {
+    public List<char[][]> loadParcels(List<Parcel> parcels, int countTruck, int truckSize) {
         log.info("Начало упаковки {} посылок.", parcels.size());
         List<char[][]> trucks = new ArrayList<>();
         int numberTruck = 1;
-        char[][] emptyTruck = createEmptyTruck();
+        char[][] emptyTruck = truckFactoryService.createEmptyTruck(truckSize);
 
-        trucks.add(getFullTruck(parcels, emptyTruck, numberTruck, trucks));
+        trucks.add(getFullTruck(parcels, emptyTruck, numberTruck, trucks, truckSize));
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
         if(validateTruckCount.validateTruckCount(countTruck, trucks)){
             throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
@@ -66,22 +67,37 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
      * @param truck        текущий грузовик, который заполняется
      * @param numberTruck  номер текущего грузовика
      * @param trucks       список всех грузовиков
+     * @param truckSize размерность грузовика
      * @return заполненный грузовик, если в него удалось поместить все посылки
      */
-    private char[][] getFullTruck(List<Parcel> parcels, char[][] truck, int numberTruck, List<char[][]> trucks) {
+    private char[][] getFullTruck(List<Parcel> parcels, char[][] truck, int numberTruck, List<char[][]> trucks, int truckSize) {
         for (Parcel parcel : parcels) {
             int[][] parcelContent = parcel.getForm();
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
+            char[][] symbolParcels = getSymbolParcels(parcel, parcelContent);
 
-            if (!parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE)) {
+            if (!parcelLoaderService.placeParcels(truck, symbolParcels, truckSize)) {
                 log.info("Грузовик заполнен, создается новый грузовик.");
                 numberTruck++;
                 trucks.add(truck);
-                truck = createEmptyTruck();
-                parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE);
+                truck = truckFactoryService.createEmptyTruck(truckSize);
+                parcelLoaderService.placeParcels(truck, symbolParcels, truckSize);
             }
             TruckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
         return truck;
     }
+
+    private static char[][] getSymbolParcels(Parcel parcel, int[][] parcelContent) {
+        int numRows = parcelContent.length;
+        int numCols = parcelContent[0].length;
+        char[][] symbolParcels = new char[numRows][numCols];
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                symbolParcels[i][j] = parcel.getSymbol();
+            }
+        }
+        return symbolParcels;
+    }
+
 }

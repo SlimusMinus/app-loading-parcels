@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ class TruckLoadServiceTest {
 
     @BeforeEach
     void setUp() {
+        jsonFileWriter = new JsonFileWriter(new ObjectMapper());
         truckLoadService = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter);
         parcelLoaderService = new ParcelLoaderService();
         truckFactoryService = new TruckFactoryService();
@@ -43,7 +46,7 @@ class TruckLoadServiceTest {
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        final List<char[][]> distributeParcels = truckLoadService.loadParcels(parcels, 2);
+        final List<char[][]> distributeParcels = truckLoadService.loadParcels(parcels, 2, 6);
         assertThat(distributeParcels.size()).isEqualTo(1);
     }
 
@@ -58,7 +61,7 @@ class TruckLoadServiceTest {
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, 1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, 1, 6)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -78,8 +81,8 @@ class TruckLoadServiceTest {
     @DisplayName("Проверка, что посылка успешно помещается.")
     void testPlaceParcelValid() {
         char[][] truck = truckFactoryService.createEmptyTruck(TRUCK_SIZE);
-        int[][] pack = {
-                {2, 2}
+        char[][] pack = {
+                {'2', '2'}
         };
         parcelLoaderService.placeParcels(truck, pack, TRUCK_SIZE);
         assertThat(parcelLoaderService.placeParcels(truck, pack, TRUCK_SIZE)).isTrue();
@@ -91,10 +94,10 @@ class TruckLoadServiceTest {
     @DisplayName("Проверка, что нельзя поместить вторую посылку на уже занятую область")
     void testPlaceParcelInvalid() {
         char[][] truck = truckFactoryService.createEmptyTruck(TRUCK_SIZE);
-        int[][] pack1 = {
+        char[][] pack1 = {
                 {3, 3, 3}
         };
-        int[][] pack2 = {
+        char[][] pack2 = {
                 {4, 4, 4}
         };
         parcelLoaderService.placeParcels(truck, pack1, TRUCK_SIZE);
@@ -110,7 +113,7 @@ class TruckLoadServiceTest {
                 new Parcel(new int[][]{{2, 2, 2}, {2, 2, 2}}),
                 new Parcel(new int[][]{{3, 3, 3, 3}, {3, 3, 3, 3}})
         );
-        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, 0, 6)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -120,13 +123,13 @@ class TruckLoadServiceTest {
 
         List<Parcel> parcels = new ArrayList<>();
         parcels.add(new Parcel(new int[][]{
-                {1, 1},
-                {1, 1}
+                {'1', '1'},
+                {'1', '1'}
         }));
         parcels.add(new Parcel(new int[][]{
-                {2, 2, 2}
+                {'2', '2', '2'}
         }));
-        List<char[][]> trucks = truckLoadService.loadParcels(parcels, 2);
+        List<char[][]> trucks = truckLoadService.loadParcels(parcels, 2, 6);
         char[][] truck1 = trucks.get(0);
         assertThat(truck1[5][0]).isEqualTo('1');
         assertThat(truck1[5][1]).isEqualTo('1');
