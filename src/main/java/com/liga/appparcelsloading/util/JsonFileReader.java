@@ -1,7 +1,7 @@
 package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.liga.appparcelsloading.fabric.ObjectMapperFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.Truck;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,6 +12,12 @@ import java.util.List;
 
 @Slf4j
 public class JsonFileReader {
+    private final ObjectMapper mapper;
+
+    public JsonFileReader(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
     /**
      * Универсальный метод для чтения данных из JSON файла
      *
@@ -24,7 +30,7 @@ public class JsonFileReader {
         List<T> dataList = new ArrayList<>();
         log.info("Начало чтения файла {}", fileName);
         try {
-            dataList = ObjectMapperFactory.getInstance().readValue(new File(fileName), typeRef);
+            dataList = mapper.readValue(new File(fileName), typeRef);
             log.info("Файл успешно прочитан: {}", fileName);
         } catch (IOException e) {
             log.error("Ошибка чтения файла {}: {}", fileName, e.getMessage());

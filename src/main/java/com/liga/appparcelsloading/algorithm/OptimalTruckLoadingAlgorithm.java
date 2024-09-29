@@ -23,11 +23,14 @@ import java.util.List;
 public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
     private final TruckCountValidate validateTruckCount;
+    private final JsonFileWriter jsonFileWriter;
 
-    public OptimalTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
+
+    public OptimalTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService, TruckCountValidate validateTruckCount, JsonFileWriter jsonFileWriter) {
         super(truckFactoryService);
         this.parcelLoaderService = parcelLoaderService;
         this.validateTruckCount = validateTruckCount;
+        this.jsonFileWriter = jsonFileWriter;
     }
 
     /**
@@ -51,7 +54,7 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
         if(validateTruckCount.validateTruckCount(countTruck, trucks)){
             throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
-        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
+        jsonFileWriter.writeParcels(trucks, "loading parcels.json");
         return trucks;
     }
 
@@ -67,7 +70,7 @@ public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
      */
     private char[][] getFullTruck(List<Parcel> parcels, char[][] truck, int numberTruck, List<char[][]> trucks) {
         for (Parcel parcel : parcels) {
-            int[][] parcelContent = parcel.getContent();
+            int[][] parcelContent = parcel.getForm();
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
 
             if (!parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE)) {

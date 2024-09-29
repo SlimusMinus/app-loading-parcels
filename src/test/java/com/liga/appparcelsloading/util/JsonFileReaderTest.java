@@ -11,7 +11,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonFileReaderTest {
-    private final JsonFileReader jsonFileReader = new JsonFileReader();
+
+    private final JsonFileReader jsonFileReader;
+
+    public JsonFileReaderTest(JsonFileReader jsonFileReader) {
+        this.jsonFileReader = jsonFileReader;
+    }
 
     @Test
     @DisplayName("Проверка чтения данных из JSON файла")

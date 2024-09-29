@@ -26,7 +26,7 @@ public class ParcelValidator {
         log.info("Начало проверки валидности посылок. Количество посылок: {}", parcels.size());
 
         for (Parcel parcel : parcels) {
-            int[][] content = parcel.getContent();
+            int[][] content = parcel.getForm();
 
             Map<Integer, Integer> numberCounts = countNumbers(content);
             if (!isValidParcel(numberCounts)) {

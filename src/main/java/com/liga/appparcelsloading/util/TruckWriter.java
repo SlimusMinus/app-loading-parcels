@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.Truck;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Map;
 public class TruckWriter {
     private static final Map<Integer, List<Integer>> loadTrucks = new HashMap<>();
     private static List<Integer> parcels = new ArrayList<>();
-    private static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter();
+    private static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter(new ObjectMapper());
 
     /**
      * Добавляет информацию о посылках для указанного грузовика.

@@ -2,14 +2,12 @@ package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.JsonFileWriter;
 
 import java.util.List;
 
 public abstract class TruckLoadAlgorithm {
     protected static final int TRUCK_SIZE = 6;
     protected final TruckFactoryService truckFactoryService;
-    protected static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter();
 
     protected TruckLoadAlgorithm(TruckFactoryService truckFactoryService) {
         this.truckFactoryService = truckFactoryService;

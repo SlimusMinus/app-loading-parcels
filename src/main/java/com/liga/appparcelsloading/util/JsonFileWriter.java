@@ -1,10 +1,12 @@
 package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.liga.appparcelsloading.fabric.ObjectMapperFactory;
 import com.liga.appparcelsloading.model.Truck;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -19,7 +21,14 @@ import java.util.List;
  * Использует ObjectMapper для сериализации и десериализации объектов в JSON формат.
  */
 @Slf4j
+@Service
 public class JsonFileWriter {
+    private final ObjectMapper mapper;
+
+    public JsonFileWriter(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
     /**
      * Универсальный метод для записи данных в JSON файл.
      * Если файл уже существует, данные из него будут обновлены новыми записями.
@@ -38,7 +47,7 @@ public class JsonFileWriter {
         // Чтение существующего файла, если он есть
         if (Files.exists(filePath)) {
             try {
-                existingDataList = ObjectMapperFactory.getInstance().readValue(filePath.toFile(), typeRef);
+                existingDataList = mapper.readValue(filePath.toFile(), typeRef);
                 log.info("Чтение существующих данных из файла {}", fileName);
             } catch (IOException e) {
                 log.error("Ошибка чтения файла {}: {}", fileName, e.getMessage());
@@ -48,7 +57,7 @@ public class JsonFileWriter {
         // Добавление новых данных и запись в файл
         existingDataList.addAll(data);
         try (Writer writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            ObjectWriter objectWriter = ObjectMapperFactory.getInstance().writerWithDefaultPrettyPrinter();
+            ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
             objectWriter.writeValue(writer, existingDataList);
             log.info("Данные успешно обновлены в файле {}", fileName);
         } catch (IOException e) {

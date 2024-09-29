@@ -6,6 +6,8 @@ import java.util.*;
 
 public class DataTest {
     public static final int TRUCK_SIZE = 6;
+    public static final int PARCELS_FROM_FILE = 10;
+
     private static final int[][] nine = new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}};
     private static final int[][] eight = new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}};
     private static final int[][] seven = new int[][]{{7, 7, 7}, {7, 7, 7, 7}};

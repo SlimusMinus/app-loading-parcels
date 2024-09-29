@@ -37,11 +37,11 @@ class FileReaderTest {
         ));
         List<Parcel> parcels = fileReader.getAllParcels(tempFile.toString());
         assertThat(2).isEqualTo(parcels.size());
-        int[][] firstParcel = parcels.get(0).getContent();
+        int[][] firstParcel = parcels.get(0).getForm();
         assertArrayEquals(new int[]{9, 9, 9}, firstParcel[0]);
         assertArrayEquals(new int[]{9, 9, 9}, firstParcel[1]);
         assertArrayEquals(new int[]{9, 9, 9}, firstParcel[2]);
-        int[][] secondParcel = parcels.get(1).getContent();
+        int[][] secondParcel = parcels.get(1).getForm();
         assertArrayEquals(new int[]{6, 6, 6}, secondParcel[0]);
         assertArrayEquals(new int[]{6, 6, 6}, secondParcel[1]);
         Files.deleteIfExists(tempFile);
@@ -60,9 +60,9 @@ class FileReaderTest {
         ));
         List<Parcel> parcels = fileReader.getAllParcels(tempFile.toString());
         assertThat(2).isEqualTo(parcels.size());
-        int[][] firstParcel = parcels.get(0).getContent();
+        int[][] firstParcel = parcels.get(0).getForm();
         assertArrayEquals(new int[]{5, 5, 5, 5, 5}, firstParcel[0]);
-        int[][] secondParcel = parcels.get(1).getContent();
+        int[][] secondParcel = parcels.get(1).getForm();
         assertArrayEquals(new int[]{3, 3, 3}, secondParcel[0]);
         Files.deleteIfExists(tempFile);
     }

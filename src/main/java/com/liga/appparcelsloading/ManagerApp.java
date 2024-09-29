@@ -3,8 +3,6 @@ package com.liga.appparcelsloading;
 import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
-import com.liga.appparcelsloading.fabric.ServiceFactory;
-import com.liga.appparcelsloading.fabric.ValidateFactory;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
@@ -16,7 +14,10 @@ import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.ParcelValidator;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -29,24 +30,16 @@ import java.util.*;
  * </p>
  */
 @Slf4j
-public class ManagerApp {
-    private final List<Parcel> parcels;
+@AllArgsConstructor
+@Service
+public class ManagerApp implements CommandLineRunner {
+    private final ParcelLoaderService parcelLoaderService;
+    private final TruckFactoryService truckFactoryService;
+    private final TruckCountValidate validateTruckCount;
     private final ParcelValidator parcelValidator;
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
-    private final ServiceFactory factory = new ServiceFactory();
-    private final ValidateFactory validateFactory = new ValidateFactory();
-    private final ParcelLoaderService parcelLoaderService = factory.createParcelLoaderService();
-    private final TruckFactoryService truckFactoryService = factory.createTruckFactoryService();
-    private final TruckCountValidate validateTruckCount = validateFactory.createTruckCountValidate();
-
-    public ManagerApp(List<Parcel> parcels, ParcelValidator parcelValidator, JsonFileReader jsonFileReader, TruckPrinterService truckPrinterService) {
-        this.parcels = parcels;
-        this.parcelValidator = parcelValidator;
-        this.jsonFileReader = jsonFileReader;
-        this.truckPrinterService = truckPrinterService;
-    }
-
+    private final JsonFileWriter jsonFileWriter;
     /**
      * Запускает процесс загрузки посылок и предоставляет пользователю выбор действий через консоль.
      * <p>
@@ -66,7 +59,7 @@ public class ManagerApp {
     public void startLoading() {
         TruckLoadAlgorithm truckLoadService;
         log.info("Начало процесса загрузки посылок.");
-        if (parcelValidator.isValid(parcels)) {
+        if (parcelValidator.isValid(getParcelsFromFile())) {
             log.info("Посылки прошли проверку на валидность.");
             do {
                 System.out.println("""
@@ -79,11 +72,11 @@ public class ManagerApp {
                 String choice = scanner.next();
                 switch (choice) {
                     case "1":
-                        truckLoadService = new EvenTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
+                        truckLoadService = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     case "2": {
-                        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, validateTruckCount);
+                        truckLoadService = new OptimalTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     }
@@ -105,7 +98,7 @@ public class ManagerApp {
      * @param truckLoadService выбранный алгоритм загрузки {@link TruckLoadAlgorithm}
      */
     private void algorithmLoadingParcels(TruckLoadAlgorithm truckLoadService) {
-        List<char[][]> trucks = truckLoadService.loadParcels(parcels, 4);
+        List<char[][]> trucks = truckLoadService.loadParcels(getParcelsFromFile(), 4);
         log.info("Успешно упаковано {} грузовиков.", trucks.size());
         TruckWriter.writeTrucks("loading trucks.json");
         truckPrinterService.printTrucks(trucks);
@@ -159,5 +152,15 @@ public class ManagerApp {
             final char[][] fullTruck = fullTrucks.get(fullTruckIndex);
             truckPrinterService.printTrucks(Collections.singletonList(fullTruck));
         }
+    }
+
+    private List<Parcel> getParcelsFromFile(){
+        FileReader fileReader = new FileReader();
+        return fileReader.getAllParcels("parcels.txt");
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        startLoading();
     }
 }

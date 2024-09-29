@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.Truck;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +21,7 @@ public class JsonFileWriterTest {
 
     @BeforeEach
     void setUp() {
-        jsonFileWriter = new JsonFileWriter();
+        jsonFileWriter = new JsonFileWriter(new ObjectMapper());
     }
 
     @AfterEach

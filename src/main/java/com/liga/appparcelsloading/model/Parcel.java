@@ -12,5 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Parcel {
-    private int[][] content;
+    private String name;
+    private char symbol;
+    private int[][] form;
+
+    public Parcel(int[][] form) {
+        this.form = form;
+    }
 }

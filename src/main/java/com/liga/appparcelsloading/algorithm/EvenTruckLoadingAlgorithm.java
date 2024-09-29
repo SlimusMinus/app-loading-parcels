@@ -3,9 +3,11 @@ package com.liga.appparcelsloading.algorithm;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
+import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,15 +22,18 @@ import java.util.List;
  * </p>
  */
 @Slf4j
+@Service
 public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
     private static final int SIZE_PARCELS = 0;
     private final ParcelLoaderService parcelLoaderService;
     private final TruckCountValidate validateTruckCount;
+    private final JsonFileWriter jsonFileWriter;
 
-    public EvenTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
+    public EvenTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService, TruckCountValidate validateTruckCount, JsonFileWriter jsonFileWriter) {
         super(truckFactoryService);
         this.parcelLoaderService = parcelLoaderService;
         this.validateTruckCount = validateTruckCount;
+        this.jsonFileWriter = jsonFileWriter;
     }
 
     /**
@@ -54,7 +59,7 @@ public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
             throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
         }
         log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
-        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
+        jsonFileWriter.writeParcels(trucks, "loading parcels.json");
         return trucks;
     }
 
@@ -73,7 +78,7 @@ public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
      */
     private char[][] getFullTruck(List<Parcel> parcels, int countTruck, int maxLoading, char[][] truck, int numberTruck, List<char[][]> trucks, int sumParcels) {
         for (Parcel parcel : parcels) {
-            int[][] parcelContent = parcel.getContent();
+            int[][] parcelContent = parcel.getForm();
             maxLoading -= parcelContent[SIZE_PARCELS][SIZE_PARCELS];
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
 
@@ -109,6 +114,6 @@ public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
      * @return общая сумма размеров всех посылок
      */
     private int getSumParcels(List<Parcel> parcels) {
-        return parcels.stream().mapToInt(parcel -> parcel.getContent()[SIZE_PARCELS][SIZE_PARCELS]).sum();
+        return parcels.stream().mapToInt(parcel -> parcel.getForm()[SIZE_PARCELS][SIZE_PARCELS]).sum();
     }
 }
