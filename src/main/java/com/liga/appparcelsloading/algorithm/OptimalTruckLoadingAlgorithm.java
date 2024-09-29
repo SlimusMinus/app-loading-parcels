@@ -2,8 +2,10 @@ package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
+import com.liga.appparcelsloading.service.ParcelService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.JsonFileWriter;
+import com.liga.appparcelsloading.util.ParcelMapper;
 import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Класс, реализующий алгоритм оптимальной загрузки посылок в грузовики.
@@ -25,12 +28,38 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final TruckCountValidate validateTruckCount;
     private final JsonFileWriter jsonFileWriter;
     private final TruckFactoryService truckFactoryService;
+    private final ParcelMapper parcelMapper;
 
-    public OptimalTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService, TruckCountValidate validateTruckCount, JsonFileWriter jsonFileWriter) {
+    public OptimalTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService, TruckCountValidate validateTruckCount,
+                                        JsonFileWriter jsonFileWriter, ParcelMapper parcelMapper) {
         this.truckFactoryService = truckFactoryService;
         this.parcelLoaderService = parcelLoaderService;
         this.validateTruckCount = validateTruckCount;
         this.jsonFileWriter = jsonFileWriter;
+        this.parcelMapper = parcelMapper;
+    }
+
+    public List<char[][]> loadParcelsByName(String nameParcels, int countTruck, int truckSize) {
+        log.info("Начало упаковки {} посылок.", nameParcels.length());
+        String delimiterRegex = "[,;: ]+";
+        String[] splitNames = nameParcels.split(delimiterRegex);
+        Map<String, Parcel> allParcels = parcelMapper.getAllParcels();
+        List<Parcel> parcels = new ArrayList<>();
+        for(String name : splitNames) {
+            if(allParcels.containsKey(name)) {
+                parcels.add(allParcels.get(name));
+            }
+        }
+        List<char[][]> trucks = new ArrayList<>();
+        int numberTruck = 1;
+        char[][] emptyTruck = truckFactoryService.createEmptyTruck(truckSize);
+        trucks.add(getFullTruck(parcels, emptyTruck, numberTruck, trucks, truckSize));
+        log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
+        if(validateTruckCount.validateTruckCount(countTruck, trucks)){
+            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+        }
+        jsonFileWriter.writeParcels(trucks, "loading parcels.json");
+        return trucks;
     }
 
     /**
@@ -88,6 +117,16 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return truck;
     }
 
+    /**
+     * Преобразует содержимое посылки в двумерный массив символов.
+     * Для каждой ячейки массива, соответствующей содержимому посылки, заполняется символом посылки.
+     *
+     * @param parcel         объект {@link Parcel}, содержащий информацию о посылке, включая символ
+     * @param parcelContent  двумерный массив {@code int[][]}, представляющий содержимое посылки
+     *                       (например, матрицу формы посылки)
+     * @return двумерный массив символов {@code char[][]}, где каждый элемент соответствует
+     *         символу посылки на соответствующем месте
+     */
     private static char[][] getSymbolParcels(Parcel parcel, int[][] parcelContent) {
         int numRows = parcelContent.length;
         int numCols = parcelContent[0].length;

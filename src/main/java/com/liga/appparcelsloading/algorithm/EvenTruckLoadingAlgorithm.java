@@ -65,6 +65,11 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return trucks;
     }
 
+    @Override
+    public List<char[][]> loadParcelsByName(String nameParcels, int countTruck, int truckSize) {
+        return List.of();
+    }
+
     /**
      * Заполняет грузовики посылками до тех пор, пока не будет достигнута максимальная загрузка.
      * Если грузовик заполнен, создается новый грузовик, и оставшиеся посылки загружаются в него.
@@ -99,6 +104,16 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return truck;
     }
 
+    /**
+     * Преобразует содержимое посылки в двумерный массив символов.
+     * Для каждой ячейки массива, соответствующей содержимому посылки, заполняется символом посылки.
+     *
+     * @param parcel         объект {@link Parcel}, содержащий информацию о посылке, включая символ
+     * @param parcelContent  двумерный массив {@code int[][]}, представляющий содержимое посылки
+     *                       (например, матрицу формы посылки)
+     * @return двумерный массив символов {@code char[][]}, где каждый элемент соответствует
+     *         символу посылки на соответствующем месте
+     */
     private static char[][] getSymbolParcels(Parcel parcel, int[][] parcelContent) {
         int numRows = parcelContent.length;
         int numCols = parcelContent[0].length;

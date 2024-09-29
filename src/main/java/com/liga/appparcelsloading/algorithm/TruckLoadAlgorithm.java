@@ -19,4 +19,5 @@ public interface TruckLoadAlgorithm {
      *         где каждая ячейка массива может быть пустой (' ') или содержать посылку
      */
     List<char[][]> loadParcels(List<Parcel> parcels, int countTruck, int truckSize);
+    List<char[][]> loadParcelsByName(String nameParcels, int countTruck, int truckSize);
 }

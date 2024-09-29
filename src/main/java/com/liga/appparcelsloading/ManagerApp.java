@@ -10,10 +10,7 @@ import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.ParcelService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.service.TruckPrinterService;
-import com.liga.appparcelsloading.util.FileReader;
-import com.liga.appparcelsloading.util.JsonFileReader;
-import com.liga.appparcelsloading.util.JsonFileWriter;
-import com.liga.appparcelsloading.util.TruckWriter;
+import com.liga.appparcelsloading.util.*;
 import com.liga.appparcelsloading.validator.ParcelValidator;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.AllArgsConstructor;
@@ -45,6 +42,7 @@ public class ManagerApp implements CommandLineRunner {
     private final ParcelService parcelService;
     private final ParcelRepository repository;
     private final Scanner scanner;
+    private final ParcelMapper parcelMapper;
 
     /**
      * Запускает процесс загрузки посылок и предоставляет пользователю выбор действий через консоль.
@@ -82,7 +80,7 @@ public class ManagerApp implements CommandLineRunner {
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     case "2": {
-                        truckLoadService = new OptimalTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter);
+                        truckLoadService = new OptimalTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
                         algorithmLoadingParcels(truckLoadService);
                         break;
                     }
