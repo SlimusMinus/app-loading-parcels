@@ -3,7 +3,6 @@ package com.liga.appparcelsloading.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.repository.DefaultParcelRepository;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
-import com.liga.appparcelsloading.service.ParcelService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.service.TruckPrinterService;
 import com.liga.appparcelsloading.util.JsonFileReader;
@@ -109,16 +108,6 @@ public class Config {
     @Bean
     public ParcelMapper parcelMapper() {
         return new ParcelMapper();
-    }
-
-    /**
-     * Создает бин {@link ParcelService}, который управляет операциями с посылками.
-     *
-     * @return экземпляр {@link ParcelService}
-     */
-    @Bean
-    public ParcelService parcelService() {
-        return new ParcelService(defaultParcelRepository(), parcelMapper(), scanner());
     }
 
     /**

@@ -3,57 +3,66 @@ package com.liga.appparcelsloading.service;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.util.ParcelMapper;
+import lombok.AllArgsConstructor;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 
 import java.util.Scanner;
 
+/**
+ * Сервис для управления посылками.
+ * Предоставляет методы для создания, обновления, получения и удаления посылок.
+ */
+@ShellComponent
+@AllArgsConstructor
 public class ParcelService {
     private final ParcelRepository repository;
     private final ParcelMapper parcelMapper;
     private final Scanner scanner;
 
-    public ParcelService(ParcelRepository repository, ParcelMapper parcelMapper, Scanner scanner) {
-        this.repository = repository;
-        this.parcelMapper = parcelMapper;
-        this.scanner = scanner;
-    }
-
-    public void parcelsManager() {
+    /**
+     * Менеджер посылок. Предоставляет пользователю интерфейс для выбора действий с посылками.
+     */
+    @ShellMethod(value = "Менеджер посылок", key = "manage-parcels-menu")
+    public void showParcelsManagerMenu() {
         System.out.println("""
                 Выберите действие:
-                1 - создать посылку
-                2 - обновить посылку
-                3 - получить посылку по ее имени
-                4 - получить все посылки
-                5 - удалить посылку
+                create-parcel - создать посылку
+                update-parcel - обновить посылку
+                get-parcel - получить посылку по ее имени
+                get-all-parcels - получить все посылки
+                delete-parcel - удалить посылку
                 """);
+    }
 
-        String choice = scanner.next();
-        switch (choice) {
-            case "1": {
-                Parcel newParcel = new Parcel();
-                save(newParcel);
-            }
-            break;
-            case "2": {
-                Parcel updateParcel = getParcel();
-                save(updateParcel);
-            }
-            break;
-            case "3": {
-                Parcel parcel = getParcel();
-                System.out.println(parcel);
-            }
-            break;
-            case "4": {
-                System.out.println(repository.getAll().toString());
-            }
-            break;
-            case "5": {
-                System.out.println("Введите название посылки");
-                String nameParcel = scanner.next();
-                repository.delete(nameParcel);
-            }
-        }
+    @ShellMethod(value = "Создать посылку", key = "create-parcel")
+    public void createParcel() {
+        Parcel newParcel = new Parcel();
+        save(newParcel);
+    }
+
+    @ShellMethod(value = "Обновить посылку", key = "update-parcel")
+    public void updateParcel() {
+        Parcel updateParcel = getParcel();
+        save(updateParcel);
+    }
+
+    @ShellMethod(value = "Получить посылку по имени", key = "get-parcel")
+    public void getParcelByName() {
+        Parcel parcel = getParcel();
+        System.out.println(parcel);
+    }
+
+    @ShellMethod(value = "Получить все посылки", key = "get-all-parcels")
+    public void getAllParcels() {
+        repository.getAll().forEach(System.out::println);
+    }
+
+    @ShellMethod(value = "Удалить посылку", key = "delete-parcel")
+    public void deleteParcel() {
+        System.out.println("Введите название посылки");
+        String nameParcel = scanner.next();
+        repository.delete(nameParcel);
     }
 
     private Parcel getParcel() {

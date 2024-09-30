@@ -1,28 +1,35 @@
 package com.liga.appparcelsloading.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+/**
+ * Сервис для размещения посылок в грузовике.
+ * Предоставляет методы для проверки возможности размещения посылок
+ * и фактического размещения посылок в грузовике.
+ */
 @Slf4j
 public class ParcelLoaderService {
-
     /**
-     * Пытается разместить одну посылку в грузовике.
+     * Пытается разместить посылку в грузовике.
      *
      * @param truck  Грузовик, представленный двумерным массивом символов.
-     * @param parcel Посылка, представленная двумерным массивом целых чисел.
-     * @return true, если посылка успешно размещена; false, если нет места для посылки.
+     * @param parcel Посылка, представленная двумерным массивом символов.
+     * @param height Высота грузовика (количество строк).
+     * @param width  Ширина грузовика (количество столбцов).
+     * @return true, если посылка успешно размещена; false в противном случае.
      */
-    public boolean placeParcels(char[][] truck, char[][] parcel, int truckSize) {
-        for (int i = truckSize - parcel.length; i >= 0; i--) {
-            final int SIZE_PARCELS = 0;
-            for (int j = 0; j <= truckSize - parcel[SIZE_PARCELS].length; j++) {
+    public boolean placeParcels(char[][] truck, char[][] parcel, int height, int width) {
+        // Перебор всех возможных позиций для размещения посылки в грузовике
+        for (int i = height - parcel.length; i >= 0; i--) {
+            final int SIZE_PARCELS = 0; // Используем для доступа к ширине посылки
+            for (int j = 0; j <= width - parcel[SIZE_PARCELS].length; j++) {
+                // Проверяем, можно ли разместить посылку на позиции (i, j)
                 if (canPlace(truck, parcel, i, j)) {
                     log.debug("Посылка размещена в грузовике по координатам: ({}, {})", i, j);
-                    applyParcels(truck, parcel, i, j);
-                    return true;
+                    applyParcels(truck, parcel, i, j); // Применяем размещение посылки
+                    return true; // Посылка успешно размещена
                 }
             }
         }

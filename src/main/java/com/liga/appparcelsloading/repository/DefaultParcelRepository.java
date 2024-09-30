@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Реализация интерфейса ParcelRepository,
+ * отвечающая за управление объектами Parcel в памяти.
+ */
 @Slf4j
 public class DefaultParcelRepository implements ParcelRepository {
     private final Map<String, Parcel> parcels;
@@ -17,6 +21,13 @@ public class DefaultParcelRepository implements ParcelRepository {
         log.info("Инициализация DefaultParcelRepository с {} посылками", parcels.size());
     }
 
+    /**
+     * Сохраняет посылку в репозитории.
+     * Если посылка с таким же именем уже существует, она будет обновлена.
+     *
+     * @param parcel посылка, которую нужно сохранить.
+     * @return ранее сохраненная посылка с таким же именем, или null, если это была новая запись.
+     */
     @Override
     public Parcel save(Parcel parcel) {
         Parcel saveParcel = parcels.put(parcel.getName(), parcel);
@@ -28,6 +39,12 @@ public class DefaultParcelRepository implements ParcelRepository {
         return saveParcel;
     }
 
+    /**
+     * Получает посылку по имени.
+     *
+     * @param name имя посылки, которую нужно получить.
+     * @return посылка с указанным именем, или null, если посылка не найдена.
+     */
     @Override
     public Parcel getByName(String name) {
         Parcel parcel = parcels.get(name);
@@ -39,12 +56,23 @@ public class DefaultParcelRepository implements ParcelRepository {
         return parcel;
     }
 
+    /**
+     * Получает все посылки из репозитория.
+     *
+     * @return список всех посылок.
+     */
     @Override
     public List<Parcel> getAll() {
         log.info("Получение всех посылок, количество: {}", parcels.size());
         return new ArrayList<>(parcels.values());
     }
 
+    /**
+     * Удаляет посылку по имени.
+     *
+     * @param name имя посылки, которую нужно удалить.
+     * @return true, если посылка была успешно удалена, или false, если посылка не найдена.
+     */
     @Override
     public boolean delete(String name) {
         if (parcels.remove(name) == null) {

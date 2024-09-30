@@ -1,14 +1,15 @@
 package com.liga.appparcelsloading.service;
 
-import com.liga.appparcelsloading.util.ParcelMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис для печати содержимого грузовиков.
+ * Предоставляет методы для отображения информации о грузовиках на экране.
+ */
 @Slf4j
 public class TruckPrinterService {
-    private ParcelMapper parcelMapper;
     /**
      * Выводит на экран содержимое всех грузовиков.
      *

@@ -48,6 +48,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring-shell-starter -->
+        <dependency>
+            <groupId>org.springframework.shell</groupId>
+            <artifactId>spring-shell-starter</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

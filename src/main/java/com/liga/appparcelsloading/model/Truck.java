@@ -14,7 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class Truck {
     private String name;
-    private int height;
-    private int weight;
     private List<Integer> parcels;
 }

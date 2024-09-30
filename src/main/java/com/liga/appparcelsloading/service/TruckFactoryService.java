@@ -1,24 +1,26 @@
 package com.liga.appparcelsloading.service;
 
+import com.liga.appparcelsloading.model.Dimension;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class TruckFactoryService {
-    /**
-     * Создает пустой грузовик размером 6x6, заполненный пробелами ' '.
-     *
-     * @return двумерный массив символов, представляющий пустой грузовик.
-     */
-    public char[][] createEmptyTruck(int truckSize) {
-        log.trace("Создание пустого грузовика.");
 
-        char[][] emptyTruck = new char[truckSize][truckSize];
-        for (int i = 0; i < truckSize; i++) {
-            Arrays.fill(emptyTruck[i], ' ');
+    public List<char[][]> createEmptyTruck(List<Dimension> dimensionsTrucks) {
+        log.trace("Создание пустого грузовика.");
+        List<char[][]> emptyTrucks = new ArrayList<>();
+        for (Dimension dimension : dimensionsTrucks) {
+            char[][] emptyTruck = new char[dimension.getHeight()][dimension.getWidth()];
+            for (int i = 0; i < dimension.getHeight(); i++) {
+                for (int j = 0; j < dimension.getWidth(); j++) {
+                    emptyTruck[i][j] = ' ';
+                }
+            }
+            emptyTrucks.add(emptyTruck);
         }
-        return emptyTruck;
+        return emptyTrucks;
     }
 }

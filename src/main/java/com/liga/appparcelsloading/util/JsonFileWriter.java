@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.liga.appparcelsloading.model.Truck;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,12 +23,9 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@AllArgsConstructor
 public class JsonFileWriter {
     private final ObjectMapper mapper;
-
-    public JsonFileWriter(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
 
     /**
      * Универсальный метод для записи данных в JSON файл.
