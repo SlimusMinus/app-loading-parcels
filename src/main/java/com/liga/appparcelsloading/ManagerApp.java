@@ -61,7 +61,7 @@ public class ManagerApp implements CommandLineRunner {
      * </p>
      */
     public void startLoading() {
-        TruckLoadAlgorithm truckLoadService;
+        TruckLoadAlgorithm truckLoadAlgorithm;
         log.info("Начало процесса загрузки посылок.");
         if (parcelValidator.isValid(getAllParcels())) {
             log.info("Посылки прошли проверку на валидность.");
@@ -69,29 +69,41 @@ public class ManagerApp implements CommandLineRunner {
                 System.out.println("""
                         Выберите действие:
                         1 - проверить алгоритм: равномерная погрузка по машинам
-                        2 - проверить алгоритм: максимально качественная погрузка
-                        3 - посмотреть сколько и какие посылки в машине из файла json
-                        4 - редактировать посылки
+                        2 - равномерная загрузка в машины посылок по именам
+                        3 - проверить алгоритм: максимально качественная погрузка
+                        4 - качественная погрузка в машины посылок по именам
+                        5 - посмотреть сколько и какие посылки в машине из файла json
+                        6 - редактировать посылки
                         """);
                 String choice = scanner.next();
                 switch (choice) {
-                    case "1":
-                        truckLoadService = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter);
-                        algorithmLoadingParcels(truckLoadService);
-                        break;
+                    case "1": {
+                        truckLoadAlgorithm = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
+                        algorithmLoadingParcels(truckLoadAlgorithm);
+                    }
+                    break;
                     case "2": {
-                        truckLoadService = new OptimalTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
-                        algorithmLoadingParcels(truckLoadService);
-                        break;
+                        truckLoadAlgorithm = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
+                        algorithmLoadingParcelsByName(truckLoadAlgorithm);
                     }
+                    break;
                     case "3": {
-                        readJson();
-                        break;
+                        truckLoadAlgorithm = new OptimalTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
+                        algorithmLoadingParcels(truckLoadAlgorithm);
                     }
+                    break;
                     case "4": {
-                        parcelService.parcelsManager();
-                        break;
+                        truckLoadAlgorithm = new OptimalTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
+                        algorithmLoadingParcelsByName(truckLoadAlgorithm);
+                    }break;
+                    case "5": {
+                        readJson();
                     }
+                    break;
+                    case "6": {
+                        parcelService.parcelsManager();
+                    }
+                    break;
                     default:
                         System.exit(0);
                 }
@@ -99,18 +111,32 @@ public class ManagerApp implements CommandLineRunner {
         }
     }
 
-    /**
-     * Метод для выбора и выполнения алгоритма загрузки посылок в грузовики.
-     * После упаковки выводит в консоль информацию о количестве грузовиков и сохраняет данные в JSON-файл.
-     *
-     * @param truckLoadService выбранный алгоритм загрузки {@link TruckLoadAlgorithm}
-     */
-    private void algorithmLoadingParcels(TruckLoadAlgorithm truckLoadService) {
+    private void algorithmLoadingParcelsByName(TruckLoadAlgorithm truckLoadAlgorithm) {
         System.out.println("Введите размерность грузовика");
         int truckSize = scanner.nextInt();
         System.out.println("Введите количество грузиков для погрузки посылок");
         int countTruck = scanner.nextInt();
-        List<char[][]> trucks = truckLoadService.loadParcels(getAllParcels(), countTruck, truckSize);
+        System.out.println("Введите название посылок которые хотите погрузить");
+        scanner.nextLine();
+        String namesParcels = scanner.nextLine();
+        List<char[][]> trucks = truckLoadAlgorithm.loadParcelsByName(namesParcels, countTruck, truckSize);
+        log.info("Успешно упаковано {} грузовиков.", trucks.size());
+        TruckWriter.writeTrucks("loading trucks.json");
+        truckPrinterService.printTrucks(trucks);
+    }
+
+    /**
+     * Метод для выбора и выполнения алгоритма загрузки посылок в грузовики.
+     * После упаковки выводит в консоль информацию о количестве грузовиков и сохраняет данные в JSON-файл.
+     *
+     * @param truckLoadAlgorithm выбранный алгоритм загрузки {@link TruckLoadAlgorithm}
+     */
+    private void algorithmLoadingParcels(TruckLoadAlgorithm truckLoadAlgorithm) {
+        System.out.println("Введите размерность грузовика");
+        int truckSize = scanner.nextInt();
+        System.out.println("Введите количество грузиков для погрузки посылок");
+        int countTruck = scanner.nextInt();
+        List<char[][]> trucks = truckLoadAlgorithm.loadParcels(getAllParcels(), countTruck, truckSize);
         log.info("Успешно упаковано {} грузовиков.", trucks.size());
         TruckWriter.writeTrucks("loading trucks.json");
         truckPrinterService.printTrucks(trucks);
@@ -166,7 +192,7 @@ public class ManagerApp implements CommandLineRunner {
         }
     }
 
-    private List<Parcel> getAllParcels(){
+    private List<Parcel> getAllParcels() {
         return repository.getAll();
     }
 

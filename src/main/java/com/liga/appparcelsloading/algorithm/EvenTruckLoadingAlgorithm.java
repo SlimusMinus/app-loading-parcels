@@ -4,6 +4,7 @@ import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.JsonFileWriter;
+import com.liga.appparcelsloading.util.ParcelMapper;
 import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Класс, реализующий алгоритм равномерного распределения посылок по грузовикам.
@@ -29,12 +31,15 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final TruckCountValidate validateTruckCount;
     private final JsonFileWriter jsonFileWriter;
     private final TruckFactoryService truckFactoryService;
+    private final ParcelMapper parcelMapper;
 
-    public EvenTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService, TruckCountValidate validateTruckCount, JsonFileWriter jsonFileWriter) {
+    public EvenTruckLoadingAlgorithm(TruckFactoryService truckFactoryService, ParcelLoaderService parcelLoaderService,
+                                     TruckCountValidate validateTruckCount, JsonFileWriter jsonFileWriter, ParcelMapper parcelMapper) {
         this.truckFactoryService = truckFactoryService;
         this.parcelLoaderService = parcelLoaderService;
         this.validateTruckCount = validateTruckCount;
         this.jsonFileWriter = jsonFileWriter;
+        this.parcelMapper = parcelMapper;
     }
 
     /**
@@ -67,7 +72,16 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
 
     @Override
     public List<char[][]> loadParcelsByName(String nameParcels, int countTruck, int truckSize) {
-        return List.of();
+        String delimiterRegex = "[,;: ]+";
+        String[] splitNames = nameParcels.split(delimiterRegex);
+        Map<String, Parcel> allParcels = parcelMapper.getAllParcels();
+        List<Parcel> parcels = new ArrayList<>();
+        for (String name : splitNames) {
+            if (allParcels.containsKey(name)) {
+                parcels.add(allParcels.get(name));
+            }
+        }
+        return loadParcels(parcels, countTruck, truckSize);
     }
 
     /**

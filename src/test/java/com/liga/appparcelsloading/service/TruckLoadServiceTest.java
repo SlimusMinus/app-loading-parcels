@@ -33,7 +33,7 @@ class TruckLoadServiceTest {
     @BeforeEach
     void setUp() {
         jsonFileWriter = new JsonFileWriter(new ObjectMapper());
-        truckLoadService = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter);
+        truckLoadService = new EvenTruckLoadingAlgorithm(truckFactoryService, parcelLoaderService, validateTruckCount, jsonFileWriter, parcelMapper);
         parcelLoaderService = new ParcelLoaderService();
         truckFactoryService = new TruckFactoryService();
         parcelMapper = new ParcelMapper();

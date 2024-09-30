@@ -9,9 +9,7 @@ import java.util.Map;
 
 @Getter
 public class ParcelMapper {
-
     private final List<String> names = List.of("Телевизор", "Кофемашина", "Чайник", "Холодильник", "Плита", "Приставка", "Комбайн", "Пылесос", "Телефон", "Наушники");
-    private int counter = 0;
     private final Map<Integer, Character> symbols = Map.of(
             1, '!',
             2, '@',
@@ -25,6 +23,7 @@ public class ParcelMapper {
     );
 
     public Map<String, Parcel> getAllParcels() {
+        int counter = 0;
         Map<String, Parcel> parcels = new HashMap<>();
         for (Parcel parcel : loadAllParcels()) {
             Parcel newParcel = new Parcel();

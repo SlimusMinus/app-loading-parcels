@@ -40,7 +40,7 @@ public class TruckWriter {
     public static void writeTrucks(String fileName) {
         List<Truck> trucksList = new ArrayList<>();
         for (Map.Entry<Integer, List<Integer>> entry : loadTrucks.entrySet()) {
-            Truck newTruck = new Truck("truck № " + entry.getKey(), entry.getValue());
+            Truck newTruck = new Truck("truck № " + entry.getKey(), 0,0, entry.getValue());
             trucksList.add(newTruck);
         }
         JSON_FILE_WRITER.writeTrucks(trucksList, fileName);
