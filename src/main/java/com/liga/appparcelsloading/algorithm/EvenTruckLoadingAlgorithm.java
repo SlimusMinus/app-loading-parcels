@@ -34,6 +34,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final JsonFileWriter jsonFileWriter;
     private final TruckFactoryService truckFactoryService;
     private final ParcelMapper parcelMapper;
+    private final TruckWriter truckWriter;
 
     /**
      * Основной метод для равномерного распределения посылок по грузовикам.
@@ -108,7 +109,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
                     throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + counter + " грузовика(ов)");
                 }
             }
-            TruckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
+            truckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
         if (!fullTrucks.contains(truck)) {
             fullTrucks.add(truck);

@@ -29,6 +29,7 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final JsonFileWriter jsonFileWriter;
     private final TruckFactoryService truckFactoryService;
     private final ParcelMapper parcelMapper;
+    private final TruckWriter truckWriter;
 
     /**
      * Загружает посылки по их именам в грузовики, создаваемые на основе предоставленных размеров.
@@ -70,7 +71,6 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return allFullTruck;
     }
 
-
     private List<char[][]> getFullTruck(List<Parcel> parcels, List<char[][]> emptyTrucks) {
         int numberTruck = 1;
         int counter = 0;
@@ -89,7 +89,7 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
                 validateTruckCount.validationFullTruck(emptyTrucks, counter, symbolParcels, parcelLoaderService);
                 currentTruck = emptyTrucks.get(counter);
             }
-            TruckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
+            truckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
         return emptyTrucks;
     }

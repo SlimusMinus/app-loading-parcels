@@ -11,3 +11,4 @@ target/
 *.ipr
 loading trucks.json
 loading parcels.json
+spring-shell.log

@@ -7,6 +7,7 @@ import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.service.TruckPrinterService;
 import com.liga.appparcelsloading.util.JsonFileReader;
 import com.liga.appparcelsloading.util.ParcelMapper;
+import com.liga.appparcelsloading.util.TruckWriter;
 import com.liga.appparcelsloading.validator.ParcelValidator;
 import com.liga.appparcelsloading.validator.TruckCountValidate;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import java.util.Scanner;
  * Класс конфигурации Spring, содержащий определения бинов для приложения загрузки посылок в грузовики.
  * Все бины создаются и управляются Spring контекстом.
  */
-@Configuration
+    @Configuration
 public class Config {
     /**
      * Создает бин {@link JsonFileReader}, который используется для чтения данных из JSON-файлов.
@@ -118,6 +119,11 @@ public class Config {
     @Bean
     public Scanner scanner() {
         return new Scanner(System.in);
+    }
+
+    @Bean
+    public TruckWriter truckWriter() {
+        return new TruckWriter();
     }
 
 }

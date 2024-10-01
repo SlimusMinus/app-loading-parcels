@@ -25,7 +25,7 @@ public class TruckWriter {
      * @param numberTruck    номер грузовика
      * @param parcelsInTruck количество посылок в грузовике
      */
-    public static void getLoadingTrucks(int numberTruck, int parcelsInTruck) {
+    public void getLoadingTrucks(int numberTruck, int parcelsInTruck) {
         if (!loadTrucks.containsKey(numberTruck)) {
             parcels = new ArrayList<>();
         }
@@ -37,7 +37,7 @@ public class TruckWriter {
      * Записывает информацию о грузовиках в файл в формате JSON.
      * Создает список объектов Truck на основе данных в карте загрузки грузовиков и записывает его в файл.
      */
-    public static void writeTrucks(String fileName) {
+    public void writeTrucks(String fileName) {
         List<Truck> trucksList = new ArrayList<>();
         for (Map.Entry<Integer, List<Integer>> entry : loadTrucks.entrySet()) {
             Truck newTruck = new Truck("truck № " + entry.getKey(), entry.getValue());
@@ -51,7 +51,7 @@ public class TruckWriter {
      *
      * @return копия карты loadTrucks
      */
-    public static Map<Integer, List<Integer>> getLoadTrucksCopy() {
+    public Map<Integer, List<Integer>> getLoadTrucksCopy() {
         Map<Integer, List<Integer>> copy = new HashMap<>();
         for (Map.Entry<Integer, List<Integer>> entry : loadTrucks.entrySet()) {
             copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));

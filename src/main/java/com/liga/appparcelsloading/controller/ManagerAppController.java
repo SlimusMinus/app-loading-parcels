@@ -1,4 +1,4 @@
-package com.liga.appparcelsloading;
+package com.liga.appparcelsloading.controller;
 
 import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
@@ -31,7 +31,7 @@ import java.util.*;
 @Slf4j
 @AllArgsConstructor
 @ShellComponent
-public class ManagerApp {
+public class ManagerAppController {
     private final ParcelLoaderService parcelLoaderService;
     private final TruckFactoryService truckFactoryService;
     private final TruckCountValidate validateTruckCount;
@@ -41,6 +41,8 @@ public class ManagerApp {
     private final ParcelRepository repository;
     private final Scanner scanner;
     private final ParcelMapper parcelMapper;
+    private final TruckWriter truckWriter;
+
 
     @ShellMethod(value = "Запуск процесса загрузки посылок.", key = "showMenu")
     public void showMenu() {
@@ -57,25 +59,25 @@ public class ManagerApp {
 
     @ShellMethod(value = "Равномерная загрузка посылок", key = "load-evenly")
     public void loadEvenly() {
-        algorithmLoadingParcels(new EvenTruckLoadingAlgorithm(parcelLoaderService, jsonFileWriter, truckFactoryService, parcelMapper));
+        algorithmLoadingParcels(new EvenTruckLoadingAlgorithm(parcelLoaderService, jsonFileWriter, truckFactoryService, parcelMapper, truckWriter));
         showMenu();
     }
 
     @ShellMethod(value = "Загрузить посылки по именам (равномерно)", key = "load-by-name-even")
     public void loadByNameEven() {
-        algorithmLoadingParcelsByName(new EvenTruckLoadingAlgorithm(parcelLoaderService, jsonFileWriter, truckFactoryService, parcelMapper));
+        algorithmLoadingParcelsByName(new EvenTruckLoadingAlgorithm(parcelLoaderService, jsonFileWriter, truckFactoryService, parcelMapper, truckWriter));
         showMenu();
     }
 
     @ShellMethod(value = "Максимально качественная загрузка посылок", key = "load-optimal")
     public void loadOptimal() {
-        algorithmLoadingParcels(new OptimalTruckLoadingAlgorithm( parcelLoaderService, validateTruckCount, jsonFileWriter, truckFactoryService,parcelMapper));
+        algorithmLoadingParcels(new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, jsonFileWriter, truckFactoryService, parcelMapper, truckWriter));
         showMenu();
     }
 
     @ShellMethod(value = "Загрузить посылки по именам (максимально качественно)", key = "load-by-name-optimal")
     public void loadByNameOptimal() {
-        algorithmLoadingParcelsByName(new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, jsonFileWriter, truckFactoryService, parcelMapper));
+        algorithmLoadingParcelsByName(new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, jsonFileWriter, truckFactoryService, parcelMapper, truckWriter));
         showMenu();
     }
 
@@ -93,7 +95,7 @@ public class ManagerApp {
         String namesParcels = scanner.nextLine();
         List<char[][]> trucks = truckLoadAlgorithm.loadParcelsByName(namesParcels, allDimension);
         log.info("Успешно упаковано {} грузовиков.", trucks.size());
-        TruckWriter.writeTrucks("loading trucks.json");
+        truckWriter.writeTrucks("loading trucks.json");
         truckPrinterService.printTrucks(trucks);
     }
 
@@ -102,7 +104,7 @@ public class ManagerApp {
         List<Dimension> allDimension = getAllDimension();
         List<char[][]> trucks = truckLoadAlgorithm.loadParcels(getAllParcels(), allDimension);
         log.info("Успешно упаковано {} грузовиков.", trucks.size());
-        TruckWriter.writeTrucks("loading trucks.json");
+        truckWriter.writeTrucks("loading trucks.json");
         truckPrinterService.printTrucks(trucks);
     }
 
