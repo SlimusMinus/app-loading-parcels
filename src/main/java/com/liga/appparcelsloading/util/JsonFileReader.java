@@ -2,7 +2,7 @@ package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.model.FullTruck;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,17 +42,7 @@ public class JsonFileReader {
      * @param fileName путь к файлу, который необходимо прочитать
      * @return список объектов Truck
      */
-    public List<Truck> readTrucks(String fileName) {
-        return read(fileName, new TypeReference<>() {});
-    }
-
-    /**
-     * Читает данные char[][] из JSON файла
-     *
-     * @param fileName путь к файлу, который необходимо прочитать
-     * @return список массивов char[][]
-     */
-    public List<char[][]> readParcels(String fileName) {
+    public List<FullTruck> readTrucks(String fileName) {
         return read(fileName, new TypeReference<>() {});
     }
 }

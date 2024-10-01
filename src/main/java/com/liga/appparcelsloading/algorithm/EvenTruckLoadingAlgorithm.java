@@ -1,13 +1,12 @@
 package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Dimension;
+import com.liga.appparcelsloading.model.FullTruck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.JsonFileWriter;
+import com.liga.appparcelsloading.util.TruckJsonWriter;
 import com.liga.appparcelsloading.util.ParcelMapper;
-import com.liga.appparcelsloading.util.TruckWriter;
-import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,11 +30,9 @@ import java.util.Map;
 public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private static final int FIRST_INDEX = 0;
     private final ParcelLoaderService parcelLoaderService;
-    private final JsonFileWriter jsonFileWriter;
     private final TruckFactoryService truckFactoryService;
     private final ParcelMapper parcelMapper;
-    private final TruckWriter truckWriter;
-
+    private final TruckJsonWriter truckJsonWriter;
     /**
      * Основной метод для равномерного распределения посылок по грузовикам.
      * <p>
@@ -56,7 +53,6 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
 
         List<char[][]> allFullTruck = getFullTruck(parcels, maxLoading, emptyTrucks);
         log.info("Упаковка завершена. Количество грузовиков: {}", allFullTruck.size());
-        jsonFileWriter.writeParcels(allFullTruck, "loading parcels.json");
         return allFullTruck;
     }
 
@@ -85,21 +81,26 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     }
 
     private List<char[][]> getFullTruck(List<Parcel> parcels, int maxLoading, List<char[][]> emptyTrucks) {
-        List<char[][]> fullTrucks = new ArrayList<>();
+        List<char[][]> trucks = new ArrayList<>();
+        List<String> namesParcels = new ArrayList<>();
+        List<FullTruck> fullFullTrucks = new ArrayList<>();
         int counter = 0;
-        int numberTruck = 1;
+        int numberTruck = 0;
         int maxLoadingOneTruck = maxLoading / emptyTrucks.size();
         char[][] truck = emptyTrucks.get(counter);
         log.debug("Первый грузовик создан с максимальной загрузкой: {}", maxLoadingOneTruck);
         for (Parcel parcel : parcels) {
             int[][] parcelContent = parcel.getForm();
-            char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcelContent);
+            char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcel.getForm());
             maxLoadingOneTruck -= parcelContent[FIRST_INDEX][FIRST_INDEX];
-            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
+            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcel.getForm()));
+            namesParcels.add(parcel.getName());
+
             if (maxLoadingOneTruck <= 0 || !parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
-                fullTrucks.add(truck);
+                trucks.add(truck);
                 log.info("Грузовик заполнен, создается новый грузовик.");
                 numberTruck++;
+                fullFullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
                 counter++;
                 if (counter < emptyTrucks.size()) {
                     truck = emptyTrucks.get(counter);
@@ -108,14 +109,22 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
                 } else if (counter >= emptyTrucks.size() + 1) {
                     throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + counter + " грузовика(ов)");
                 }
+                namesParcels = new ArrayList<>();
             }
-            truckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
-        if (!fullTrucks.contains(truck)) {
-            fullTrucks.add(truck);
+        finalizedAddTruck(trucks, truck, numberTruck, fullFullTrucks, namesParcels);
+        log.info("Количество загруженных грузовиков: {}", trucks.size());
+        truckJsonWriter.write(fullFullTrucks, "loading truck.json");
+        return trucks;
+    }
+
+    private static void finalizedAddTruck(List<char[][]> trucks, char[][] truck, int numberTruck, List<FullTruck> fullFullTrucks, List<String> namesParcels) {
+        if (!trucks.contains(truck)) {
+            trucks.add(truck);
+            numberTruck++;
+            fullFullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+            log.info("Последний грузовик добавлен: Truck № {}", numberTruck);
         }
-        log.info("Количество загруженных грузовиков: {}", fullTrucks.size());
-        return fullTrucks;
     }
 
     private int calculateMaxLoading(List<Dimension> dimensions, List<Parcel> parcels) {

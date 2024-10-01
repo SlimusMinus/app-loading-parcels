@@ -8,7 +8,7 @@ import static com.liga.appparcelsloading.DataTest.PARCEL;
 import static com.liga.appparcelsloading.DataTest.SYMBOLS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TruckLoadAlgorithmTest {
+class FullTruckLoadAlgorithmTest {
 
     private ParcelMapper parcelMapper;
 
