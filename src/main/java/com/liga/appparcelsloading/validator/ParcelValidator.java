@@ -2,6 +2,7 @@ package com.liga.appparcelsloading.validator;
 
 import com.liga.appparcelsloading.model.Parcel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
  * Проверяет, соответствуют ли посылки заранее определенным шаблонам по содержимому.
  */
 @Slf4j
+@Component
 public class ParcelValidator {
 
     /**

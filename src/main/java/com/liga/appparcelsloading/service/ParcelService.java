@@ -4,98 +4,70 @@ import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.util.ParcelMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
  * Сервис для управления посылками.
  * Предоставляет методы для создания, обновления, получения и удаления посылок.
  */
-@ShellComponent
+@Service
 @AllArgsConstructor
+@Slf4j
 public class ParcelService {
     private final ParcelRepository repository;
     private final ParcelMapper parcelMapper;
-    private final Scanner scanner;
 
-    /**
-     * Менеджер посылок. Предоставляет пользователю интерфейс для выбора действий с посылками.
-     */
-    @ShellMethod(value = "Менеджер посылок", key = "manage-parcels-menu")
-    public void showParcelsManagerMenu() {
-        System.out.println("""
-                Выберите действие:
-                create-parcel - создать посылку
-                update-parcel - обновить посылку
-                get-parcel - получить посылку по ее имени
-                get-all-parcels - получить все посылки
-                delete-parcel - удалить посылку
-                """);
+    public void save(String name, char symbol, int weight, String orientation) {
+        Optional<Parcel> existingParcel = getParcel(name);
+        Parcel parcel = existingParcel.orElse(new Parcel());
+        saveParcel(parcel, name, symbol, weight, orientation);
+        if (existingParcel.isPresent()) {
+            log.info("Посылка '{}' успешно обновлена", parcel.getName());
+        } else {
+            log.info("Посылка '{}' успешно создана", parcel.getName());
+        }
     }
 
-    @ShellMethod(value = "Создать посылку", key = "create-parcel")
-    public void createParcel() {
-        Parcel newParcel = new Parcel();
-        save(newParcel);
-    }
-
-    @ShellMethod(value = "Обновить посылку", key = "update-parcel")
-    public void updateParcel() {
-        Parcel updateParcel = getParcel();
-        save(updateParcel);
-    }
-
-    @ShellMethod(value = "Получить посылку по имени", key = "get-parcel")
-    public void getParcelByName() {
-        Parcel parcel = getParcel();
+    public void getParcelByName(String name) {
+        Optional<Parcel> parcel = getParcel(name);
         System.out.println(parcel);
     }
 
-    @ShellMethod(value = "Получить все посылки", key = "get-all-parcels")
     public void getAllParcels() {
-        repository.getAll().forEach(System.out::println);
+        repository.findAll().forEach(System.out::println);
     }
 
-    @ShellMethod(value = "Удалить посылку", key = "delete-parcel")
-    public void deleteParcel() {
-        System.out.println("Введите название посылки");
-        String nameParcel = scanner.next();
-        repository.delete(nameParcel);
+    public void deleteParcel(String name) {
+        repository.delete(name);
     }
 
-    private Parcel getParcel() {
-        System.out.println("Введите название посылки");
-        String nameParcel = scanner.next();
-        return repository.getByName(nameParcel);
+    private Optional<Parcel> getParcel(String nameParcel) {
+        return repository.findByName(nameParcel);
     }
 
-    private void save(Parcel parcel) {
-        System.out.println("Введите название для посылки");
-        String name = scanner.next();
+    private void saveParcel(Parcel parcel, String name, char symbol, int weight, String orientation) {
         parcel.setName(name);
-        System.out.println("Введите символ которым будет обозначаться посылка");
-        char symbol = scanner.next().charAt(0);
         parcel.setSymbol(symbol);
-        System.out.println("Введите вес вашей посылки");
-        int price = scanner.nextInt();
-        System.out.println("Выберите вариант размещения посылки: 1 - вертикально, 2 - горизонтально");
-        String choice = scanner.next();
-        int[][] weight;
-        switch (choice) {
+        int[][] form;
+        switch (orientation) {
             case "1": {
-                weight = parcelMapper.setVerticalForm(price);
+                form = parcelMapper.setVerticalForm(weight);
             }
             break;
             case "2": {
-                weight = parcelMapper.setHorizontalForm(price);
+                form = parcelMapper.setHorizontalForm(weight);
             }
             break;
             default:
-                weight = parcelMapper.setHorizontalForm(price);
+                form = parcelMapper.setHorizontalForm(weight);
         }
-        parcel.setForm(weight);
+        parcel.setForm(form);
         repository.save(parcel);
     }
 }

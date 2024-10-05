@@ -2,22 +2,33 @@ package com.liga.appparcelsloading.repository;
 
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.util.ParcelMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Реализация интерфейса ParcelRepository,
  * отвечающая за управление объектами Parcel в памяти.
  */
 @Slf4j
+@Repository
 public class DefaultParcelRepository implements ParcelRepository {
-    private final Map<String, Parcel> parcels;
+    private final ParcelMapper parcelMapper;
+
+    private final Map<String, Parcel> parcels = new ConcurrentHashMap<>();
 
     public DefaultParcelRepository(ParcelMapper parcelMapper) {
-        this.parcels = parcelMapper.getAllParcels();
+        this.parcelMapper = parcelMapper;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.parcels.putAll(parcelMapper.getAllParcels());
         log.info("Инициализация DefaultParcelRepository с {} посылками", parcels.size());
     }
 
@@ -46,14 +57,13 @@ public class DefaultParcelRepository implements ParcelRepository {
      * @return посылка с указанным именем, или null, если посылка не найдена.
      */
     @Override
-    public Parcel getByName(String name) {
-        Parcel parcel = parcels.get(name);
-        if (parcel == null) {
-            log.warn("Посылка с названием '{}' не найдена", name);
-        } else {
-            log.info("Получена посылка с названием '{}'", name);
-        }
-        return parcel;
+    public Optional<Parcel> findByName(String name) {
+        Optional<Parcel> parcelOpt = Optional.ofNullable(parcels.get(name));
+        parcelOpt.ifPresentOrElse(
+                parcel -> log.info("Получена посылка с названием '{}'", name),
+                () -> log.warn("Посылка с названием '{}' не найдена", name)
+        );
+        return parcelOpt;
     }
 
     /**
@@ -62,9 +72,9 @@ public class DefaultParcelRepository implements ParcelRepository {
      * @return список всех посылок.
      */
     @Override
-    public List<Parcel> getAll() {
+    public List<Parcel> findAll() {
         log.info("Получение всех посылок, количество: {}", parcels.size());
-        return new ArrayList<>(parcels.values());
+        return parcels.values().stream().toList();
     }
 
     /**
@@ -75,9 +85,10 @@ public class DefaultParcelRepository implements ParcelRepository {
      */
     @Override
     public boolean delete(String name) {
-        if (parcels.remove(name) == null) {
-            log.warn("Посылка с названием '{}' не найдена", name);
-            return false;
+        Parcel removedParcel = parcels.remove(name);
+        if (removedParcel == null) {
+            log.warn("Попытка удаления несуществующей посылки с названием '{}'", name);
+            throw new IllegalArgumentException("Посылка с названием '" + name + "' не найдена");
         }
         log.info("Удалена посылка с названием '{}'", name);
         return true;

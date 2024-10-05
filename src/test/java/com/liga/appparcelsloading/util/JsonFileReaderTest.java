@@ -5,9 +5,10 @@ import com.liga.appparcelsloading.model.FullTruck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,47 +18,10 @@ public class JsonFileReaderTest {
     @Test
     @DisplayName("Проверка чтения данных из JSON файла")
     void testRead() throws Exception {
-        String jsonContent = """
-                [
-                    {
-                        "nameTruck": "Truck № 2",
-                        "nameParcels": [
-                            "Холодильник",
-                            "Телевизор",
-                            "Комбайн"
-                        ],
-                        "parcels": [
-                            ["+", "+", "+", " ", " "],
-                            ["+", "+", "+", " ", " "],
-                            ["+", "+", "+", " ", " "],
-                            ["*", "*", "*", "*", " "],
-                            ["*", "*", "*", "*", " "],
-                            ["$", "$", "$", "$", " "]
-                        ]
-                    },
-                    {
-                        "nameTruck": "Truck № 3",
-                        "nameParcels": [
-                            "Пылесос",
-                            "Телефон"
-                        ],
-                        "parcels": [
-                            [" ", " ", " ", " ", " "],
-                            [" ", " ", " ", " ", " "],
-                            [" ", " ", " ", " ", " "],
-                            [" ", " ", " ", " ", " "],
-                            [" ", " ", " ", " ", " "],
-                            [" ", " ", " ", " ", " "],
-                            [" ", "&", "&", "&", "^", "^", "^"],
-                            ["#", "#", "&", "&", "^", "^", "^"]
-                        ]
-                    }
-                ]""";
-
         String TEST_FILE = "test_trucks.json";
-        Files.writeString(Path.of(TEST_FILE), jsonContent);
+        Path jsonFilePath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(TEST_FILE)).toURI());
 
-        List<FullTruck> trucks = jsonFileReader.readTrucks(TEST_FILE);
+        List<FullTruck> trucks = jsonFileReader.readTrucks(jsonFilePath.toString());
 
         assertThat(trucks).hasSize(2);
         assertThat(trucks.get(0).getNameTruck()).isEqualTo("Truck № 2");
@@ -66,8 +30,6 @@ public class JsonFileReaderTest {
         assertThat(trucks.get(0).getParcels()[0]).containsExactly('+', '+', '+', ' ', ' ');
 
         assertThat(trucks.get(1).getParcels()[6]).containsExactly(' ', '&', '&', '&', '^', '^', '^');
-
-        Files.deleteIfExists(Path.of(TEST_FILE));
     }
 
     @Test

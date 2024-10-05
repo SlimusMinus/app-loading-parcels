@@ -7,7 +7,6 @@ import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.TruckJsonWriter;
 import com.liga.appparcelsloading.util.ParcelMapper;
-import com.liga.appparcelsloading.validator.TruckCountValidate;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,6 @@ import java.util.Map;
 @AllArgsConstructor
 public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
-    private final TruckCountValidate validateTruckCount;
     private final TruckFactoryService truckFactoryService;
     private final ParcelMapper parcelMapper;
     private final TruckJsonWriter truckJsonWriter;
@@ -76,27 +74,31 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         List<FullTruck> fullTrucks = new ArrayList<>();
         int numberTruck = 0;
         int counter = 0;
-        char[][] currentTruck = emptyTrucks.get(counter);
+        char[][] truck = emptyTrucks.get(counter);
 
         for (Parcel parcel : parcels) {
             int[][] parcelContent = parcel.getForm();
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
             char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcelContent);
             namesParcels.add(parcel.getName());
-            if (!parcelLoaderService.placeParcels(currentTruck, symbolParcels, currentTruck.length, currentTruck[0].length)) {
+            if (!parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
                 numberTruck++;
                 log.info("Грузовик заполнен, создается новый грузовик.");
-                fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, currentTruck));
+                fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
                 counter++;
-                validateTruckCount.validationFullTruck(emptyTrucks, counter, symbolParcels, parcelLoaderService);
-                currentTruck = emptyTrucks.get(counter);
+                if (counter < emptyTrucks.size()) {
+                    truck = emptyTrucks.get(counter);
+                    parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length);
+                } else if (counter >= emptyTrucks.size() + 1) {
+                    throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + counter + " грузовика(ов)");
+                }                truck = emptyTrucks.get(counter);
                 namesParcels = new ArrayList<>();
             }
         }
 
         if (!namesParcels.isEmpty()) {
             numberTruck++;
-            fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, currentTruck));
+            fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
             log.info("Последний грузовик добавлен: Truck № {}", numberTruck);
         }
 

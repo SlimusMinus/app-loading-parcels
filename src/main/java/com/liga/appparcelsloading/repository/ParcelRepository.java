@@ -3,6 +3,7 @@ package com.liga.appparcelsloading.repository;
 import com.liga.appparcelsloading.model.Parcel;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Интерфейс для управления объектами Parcel в репозитории.
@@ -24,14 +25,14 @@ public interface ParcelRepository {
      * @param name имя посылки, которую нужно получить.
      * @return посылка с указанным именем, или null, если посылка не найдена.
      */
-    Parcel getByName(String name);
+    Optional<Parcel> findByName(String name);
 
     /**
      * Получает все посылки из репозитория.
      *
      * @return список всех посылок.
      */
-    List<Parcel> getAll();
+    List<Parcel> findAll();
 
     /**
      * Удаляет посылку по имени.

@@ -3,6 +3,7 @@ package com.liga.appparcelsloading.util;
 import com.liga.appparcelsloading.model.Parcel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
  * Предоставляет методы для получения всех посылок и их форм.
  */
 @Slf4j
+@Service
 @Getter
 public class ParcelMapper {
     private final List<String> names = List.of("Телевизор", "Кофемашина", "Чайник", "Холодильник", "Плита", "Приставка", "Комбайн", "Пылесос", "Телефон", "Наушники");

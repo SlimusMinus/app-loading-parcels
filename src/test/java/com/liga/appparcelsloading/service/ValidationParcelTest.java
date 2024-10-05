@@ -26,7 +26,7 @@ class ValidationParcelTest {
     @Test
     @DisplayName("тестирование не валидных данных")
     void isValidationFalse() {
-        assertThat(parcelValidator.isValid(PARCEL_WRONG_2)).isFalse();
+        assertThat(parcelValidator.isValid(PARCEL_WRONG)).isFalse();
     }
 
 }

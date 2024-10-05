@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.FullTruck;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.List;
  * Класс для записи информации о грузовиках в JSON файл.
  */
 @Slf4j
+@Component
 public class TruckJsonWriter {
     private final ObjectMapper mapper;
 

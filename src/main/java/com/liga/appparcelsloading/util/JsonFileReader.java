@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.FullTruck;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @Slf4j
 @AllArgsConstructor
 public class JsonFileReader {
@@ -24,7 +26,7 @@ public class JsonFileReader {
      * @param <T>      тип возвращаемых данных
      * @return данные типа T, прочитанные из файла
      */
-    public <T> List<T> read(String fileName, TypeReference<List<T>> typeRef) {
+    private <T> List<T> read(String fileName, TypeReference<List<T>> typeRef) {
         List<T> dataList = new ArrayList<>();
         log.info("Начало чтения файла {}", fileName);
         try {

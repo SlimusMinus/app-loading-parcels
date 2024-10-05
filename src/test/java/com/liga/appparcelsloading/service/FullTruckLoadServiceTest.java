@@ -1,17 +1,15 @@
 package com.liga.appparcelsloading.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
 import com.liga.appparcelsloading.model.Dimension;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.util.ParcelMapper;
 import com.liga.appparcelsloading.util.TruckJsonWriter;
-import com.liga.appparcelsloading.validator.TruckCountValidate;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
@@ -21,23 +19,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @DisplayName("Тестирование класса LoadingTrucks")
+@SpringBootTest
 class FullTruckLoadServiceTest {
 
     private TruckLoadAlgorithm truckLoadService;
+    @Autowired
     private ParcelLoaderService parcelLoaderService;
+    @Autowired
     private TruckFactoryService truckFactoryService;
+    @Autowired
     private ParcelMapper parcelMapper;
+    @Autowired
     private TruckCountValidate validateTruckCount;
+    @Autowired
     private TruckJsonWriter truckJsonWriter;
-
-    @BeforeEach
-    void setUp() {
-        validateTruckCount = new TruckCountValidate();
-        parcelLoaderService = new ParcelLoaderService();
-        truckFactoryService = new TruckFactoryService();
-        parcelMapper = new ParcelMapper();
-        truckJsonWriter = new TruckJsonWriter(new ObjectMapper());
-    }
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки")
