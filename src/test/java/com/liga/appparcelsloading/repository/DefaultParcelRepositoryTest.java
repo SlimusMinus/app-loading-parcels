@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.liga.appparcelsloading.DataTest.GET_BY_NAME_PARCEL;
@@ -11,7 +12,8 @@ import static com.liga.appparcelsloading.DataTest.PARCEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
+@SpringBootTest
+@TestPropertySource(locations = "classpath:application.properties")
 class DefaultParcelRepositoryTest {
 
     @Autowired
