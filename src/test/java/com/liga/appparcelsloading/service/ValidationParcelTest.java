@@ -4,19 +4,21 @@ import com.liga.appparcelsloading.validator.ParcelValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import static com.liga.appparcelsloading.DataTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тестирование класса ValidationData")
+@SpringBootTest
+@TestPropertySource(locations = "classpath:application.properties")
 class ValidationParcelTest {
+    @Autowired
     private ParcelValidator parcelValidator;
 
-    @BeforeEach
-    void setUp(){
-        parcelValidator = new ParcelValidator();
-    }
     @Test
     @DisplayName("тестирование валидных данных")
     void isValidationTrue() {
@@ -26,7 +28,7 @@ class ValidationParcelTest {
     @Test
     @DisplayName("тестирование не валидных данных")
     void isValidationFalse() {
-        assertThat(parcelValidator.isValid(PARCEL_WRONG_2)).isFalse();
+        assertThat(parcelValidator.isValid(PARCEL_WRONG)).isFalse();
     }
 
 }

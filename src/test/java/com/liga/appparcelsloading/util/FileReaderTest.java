@@ -4,6 +4,9 @@ import com.liga.appparcelsloading.model.Parcel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,14 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @DisplayName("Тестирование класса FileReader")
+@SpringBootTest
+@TestPropertySource(locations = "classpath:application.properties")
 class FileReaderTest {
 
+    @Autowired
     private FileReader fileReader;
 
-    @BeforeEach
-    void setUp() {
-        fileReader = new FileReader();
-    }
 
     @Test
     @DisplayName("добавление 2 посылок с размером 9 и 6")
@@ -37,11 +39,11 @@ class FileReaderTest {
         ));
         List<Parcel> parcels = fileReader.getAllParcels(tempFile.toString());
         assertThat(2).isEqualTo(parcels.size());
-        int[][] firstParcel = parcels.get(0).getContent();
+        int[][] firstParcel = parcels.get(0).getForm();
         assertArrayEquals(new int[]{9, 9, 9}, firstParcel[0]);
         assertArrayEquals(new int[]{9, 9, 9}, firstParcel[1]);
         assertArrayEquals(new int[]{9, 9, 9}, firstParcel[2]);
-        int[][] secondParcel = parcels.get(1).getContent();
+        int[][] secondParcel = parcels.get(1).getForm();
         assertArrayEquals(new int[]{6, 6, 6}, secondParcel[0]);
         assertArrayEquals(new int[]{6, 6, 6}, secondParcel[1]);
         Files.deleteIfExists(tempFile);
@@ -60,9 +62,9 @@ class FileReaderTest {
         ));
         List<Parcel> parcels = fileReader.getAllParcels(tempFile.toString());
         assertThat(2).isEqualTo(parcels.size());
-        int[][] firstParcel = parcels.get(0).getContent();
+        int[][] firstParcel = parcels.get(0).getForm();
         assertArrayEquals(new int[]{5, 5, 5, 5, 5}, firstParcel[0]);
-        int[][] secondParcel = parcels.get(1).getContent();
+        int[][] secondParcel = parcels.get(1).getForm();
         assertArrayEquals(new int[]{3, 3, 3}, secondParcel[0]);
         Files.deleteIfExists(tempFile);
     }

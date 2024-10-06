@@ -1,44 +1,46 @@
 package com.liga.appparcelsloading.util;
 
-import com.liga.appparcelsloading.model.Truck;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.liga.appparcelsloading.model.FullTruck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-class JsonFileReaderTest {
-    private final JsonFileReader jsonFileReader = new JsonFileReader();
+@SpringBootTest
+@TestPropertySource(locations = "classpath:application.properties")
+public class JsonFileReaderTest {
+    @Autowired
+    private JsonFileReader jsonFileReader;
 
     @Test
     @DisplayName("Проверка чтения данных из JSON файла")
     void testRead() throws Exception {
-        String jsonContent = """
-            [
-              {"name": "Truck 1", "parcels": [5, 10]},
-              {"name": "Truck 2", "parcels": [7, 15]}
-            ]
-        """;
         String TEST_FILE = "test_trucks.json";
-        Files.writeString(Path.of(TEST_FILE), jsonContent);
-        List<Truck> trucks = jsonFileReader.readTrucks(TEST_FILE);
+        Path jsonFilePath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(TEST_FILE)).toURI());
+
+        List<FullTruck> trucks = jsonFileReader.readTrucks(jsonFilePath.toString());
 
         assertThat(trucks).hasSize(2);
-        assertThat(trucks.get(0).getName()).isEqualTo("Truck 1");
-        assertThat(trucks.get(0).getParcels()).containsExactly(5, 10);
-        assertThat(trucks.get(1).getName()).isEqualTo("Truck 2");
-        assertThat(trucks.get(1).getParcels()).containsExactly(7, 15);
+        assertThat(trucks.get(0).getNameTruck()).isEqualTo("Truck № 2");
+        assertThat(trucks.get(1).getNameTruck()).isEqualTo("Truck № 3");
 
-        Files.deleteIfExists(Path.of(TEST_FILE));
+        assertThat(trucks.get(0).getParcels()[0]).containsExactly('+', '+', '+', ' ', ' ');
+
+        assertThat(trucks.get(1).getParcels()[6]).containsExactly(' ', '&', '&', '&', '^', '^', '^');
     }
 
     @Test
     @DisplayName("Проверка обработки отсутствующего файла")
     void testReadFileNotFound() {
-        List<Truck> trucks = jsonFileReader.readTrucks("non_existing_file.json");
+        List<FullTruck> trucks = jsonFileReader.readTrucks("non_existing_file.json");
         assertThat(trucks).isEmpty();
     }
 }

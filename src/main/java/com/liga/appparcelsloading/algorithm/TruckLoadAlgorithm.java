@@ -1,33 +1,41 @@
 package com.liga.appparcelsloading.algorithm;
 
+import com.liga.appparcelsloading.model.Dimension;
 import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.JsonFileWriter;
 
 import java.util.List;
 
-public abstract class TruckLoadAlgorithm {
-    protected static final int TRUCK_SIZE = 6;
-    protected final TruckFactoryService truckFactoryService;
-    protected static final JsonFileWriter JSON_FILE_WRITER = new JsonFileWriter();
-
-    protected TruckLoadAlgorithm(TruckFactoryService truckFactoryService) {
-        this.truckFactoryService = truckFactoryService;
-    }
+/**
+ * Интерфейс для алгоритмов загрузки посылок в грузовики.
+ * Предоставляет методы для равномерного распределения посылок по грузовикам
+ * с использованием различных стратегий загрузки.
+ */
+public interface TruckLoadAlgorithm {
+    /**
+     * Загружает посылки в грузовики, распределяя их максимально равномерно.
+     *
+     * @param parcels список посылок, которые необходимо распределить по грузовикам.
+     *                Каждая посылка представлена объектом {@link Parcel}, который содержит информацию
+     *                о форме посылки и её символическом представлении.
+     * @param dimensionsTrucks список размеров грузовиков, представленный объектами {@link Dimension},
+     *                         где каждый объект содержит ширину и высоту грузовика.
+     * @return список массивов символов, представляющих содержимое каждого загруженного грузовика.
+     *         Каждый грузовик представлен как двумерный массив символов {@code char[][]}.
+     */
+    List<char[][]> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks);
 
     /**
-     * Метод для загрузки посылок в грузовики.
-     * @param parcels список посылок
-     * @param countTruck количество грузовиков
-     * @return список загруженных грузовиков
+     * Загружает посылки по их именам в грузовики, распределяя их максимально равномерно.
+     * Имена посылок разделяются пробелом, запятой или другими разделителями и используются для поиска
+     * соответствующих объектов {@link Parcel}.
+     *
+     * @param nameParcels строка, содержащая имена посылок, которые необходимо загрузить.
+     *                    Разделители могут включать пробелы, запятые, двоеточия и точки с запятой.
+     * @param dimensionsTrucks список размеров грузовиков, представленный объектами {@link Dimension},
+     *                         где каждый объект содержит ширину и высоту грузовика.
+     * @return список массивов символов, представляющих содержимое каждого загруженного грузовика.
+     *         Каждый грузовик представлен как двумерный массив символов {@code char[][]}.
      */
-    public abstract List<char[][]> loadParcels(List<Parcel> parcels, int countTruck);
+    List<char[][]> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks);
 
-    /**
-     * Создаёт пустой грузовик.
-     * @return пустой грузовик
-     */
-    protected char[][] createEmptyTruck() {
-        return truckFactoryService.createEmptyTruck(TRUCK_SIZE);
-    }
 }

@@ -1,15 +1,20 @@
 package com.liga.appparcelsloading.algorithm;
 
+import com.liga.appparcelsloading.model.Dimension;
+import com.liga.appparcelsloading.model.FullTruck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.TruckWriter;
-import com.liga.appparcelsloading.validator.TruckCountValidate;
+import com.liga.appparcelsloading.util.TruckJsonWriter;
+import com.liga.appparcelsloading.util.ParcelMapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Класс, реализующий алгоритм равномерного распределения посылок по грузовикам.
@@ -20,95 +25,122 @@ import java.util.List;
  * </p>
  */
 @Slf4j
-public class EvenTruckLoadingAlgorithm extends TruckLoadAlgorithm {
-    private static final int SIZE_PARCELS = 0;
+@Service
+@AllArgsConstructor
+public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
+    private static final int FIRST_INDEX = 0;
     private final ParcelLoaderService parcelLoaderService;
-    private final TruckCountValidate validateTruckCount;
+    private final TruckFactoryService truckFactoryService;
+    private final ParcelMapper parcelMapper;
+    private final TruckJsonWriter truckJsonWriter;
+    /**
+     * Основной метод для равномерного распределения посылок по грузовикам.
+     * <p>
+     * Загружает список посылок в грузовики, исходя из доступных размеров грузовиков.
+     * </p>
+     *
+     * @param parcels          список посылок, которые нужно загрузить
+     * @param dimensionsTrucks список размеров доступных грузовиков
+     * @return список грузовиков, загруженных посылками
+     */
+    @Override
+    public List<char[][]> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
+        log.info("Начало равномерного распределения {} посылок.", parcels.size());
+        List<char[][]> emptyTrucks = truckFactoryService.createEmptyTruck(dimensionsTrucks);
 
-    public EvenTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
-        super(truckFactoryService);
-        this.parcelLoaderService = parcelLoaderService;
-        this.validateTruckCount = validateTruckCount;
+        int maxLoading = calculateMaxLoading(dimensionsTrucks, parcels);
+        log.info("Максимальная загрузка одного грузовика: {}", maxLoading);
+
+        List<char[][]> allFullTruck = getFullTruck(parcels, maxLoading, emptyTrucks);
+        log.info("Упаковка завершена. Количество грузовиков: {}", allFullTruck.size());
+        return allFullTruck;
     }
 
     /**
-     * Выполняет распределение посылок по грузовикам с использованием равномерного алгоритма загрузки.
+     * Метод для загрузки посылок по их именам.
+     * <p>
+     * Загружает посылки в грузовики, используя названия посылок, указанные в строке.
+     * </p>
      *
-     * @param parcels   список посылок для распределения
-     * @param countTruck количество грузовиков, доступных для загрузки
-     * @return список массивов символов, представляющих состояние грузовиков после загрузки
+     * @param nameParcels      строка с названиями посылок, разделёнными разделителями
+     * @param dimensionsTrucks список размеров доступных грузовиков
+     * @return список грузовиков, загруженных посылками
      */
     @Override
-    public List<char[][]> loadParcels(List<Parcel> parcels, int countTruck) {
-        log.info("Начало равномерного распределения {} посылок.", parcels.size());
+    public List<char[][]> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
+        log.info("Загрузка посылок по именам: {}", nameParcels);
+        String delimiterRegex = "[,;: ]+";
+        String[] splitNames = nameParcels.split(delimiterRegex);
+        Map<String, Parcel> allParcels = parcelMapper.getAllParcels();
+        List<Parcel> parcels = Arrays.stream(splitNames)
+                .filter(allParcels::containsKey)
+                .map(allParcels::get)
+                .toList();
+        log.info("Найдено {} посылок для загрузки.", parcels.size());
+        return loadParcels(parcels, dimensionsTrucks);
+    }
+
+    private List<char[][]> getFullTruck(List<Parcel> parcels, int maxLoading, List<char[][]> emptyTrucks) {
         List<char[][]> trucks = new ArrayList<>();
-        int numberTruck = 1;
-        char[][] emptyTruck = createEmptyTruck();
+        List<String> namesParcels = new ArrayList<>();
+        List<FullTruck> fullFullTrucks = new ArrayList<>();
+        int counter = 0;
+        int numberTruck = 0;
+        int maxLoadingOneTruck = maxLoading / emptyTrucks.size();
+        char[][] truck = emptyTrucks.get(counter);
+        log.debug("Первый грузовик создан с максимальной загрузкой: {}", maxLoadingOneTruck);
+        for (Parcel parcel : parcels) {
+            int[][] parcelContent = parcel.getForm();
+            char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcel.getForm());
+            maxLoadingOneTruck -= parcelContent[FIRST_INDEX][FIRST_INDEX];
+            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcel.getForm()));
+            namesParcels.add(parcel.getName());
 
-        final int sumParcels = getSumParcels(parcels);
-        int maxLoading = getMaxLoading(countTruck, sumParcels);
-        log.info("Максимальная загрузка одного грузовика: {}", maxLoading);
-
-        trucks.add(getFullTruck(parcels, countTruck, maxLoading, emptyTruck, numberTruck, trucks, sumParcels));
-        if(validateTruckCount.validateTruckCount(countTruck, trucks)){
-            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
+            if (maxLoadingOneTruck <= 0 || !parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
+                trucks.add(truck);
+                log.info("Грузовик заполнен, создается новый грузовик.");
+                numberTruck++;
+                fullFullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+                counter++;
+                if (counter < emptyTrucks.size()) {
+                    truck = emptyTrucks.get(counter);
+                    parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length);
+                    maxLoadingOneTruck = maxLoading / emptyTrucks.size();
+                } else if (counter >= emptyTrucks.size() + 1) {
+                    throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + counter + " грузовика(ов)");
+                }
+                namesParcels = new ArrayList<>();
+            }
         }
-        log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
-        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
+        finalizedAddTruck(trucks, truck, numberTruck, fullFullTrucks, namesParcels);
+        log.info("Количество загруженных грузовиков: {}", trucks.size());
+        truckJsonWriter.write(fullFullTrucks, "loading truck.json");
         return trucks;
     }
 
-    /**
-     * Заполняет грузовики посылками до тех пор, пока не будет достигнута максимальная загрузка.
-     * Если грузовик заполнен, создается новый грузовик, и оставшиеся посылки загружаются в него.
-     *
-     * @param parcels      список посылок для распределения
-     * @param countTruck   количество грузовиков
-     * @param maxLoading   максимальная допустимая загрузка одного грузовика
-     * @param truck        текущий грузовик, который заполняется
-     * @param numberTruck  номер текущего грузовика
-     * @param trucks       список всех грузовиков
-     * @param sumParcels   общая сумма размеров всех посылок
-     * @return заполненный грузовик, если в него удалось поместить все посылки
-     */
-    private char[][] getFullTruck(List<Parcel> parcels, int countTruck, int maxLoading, char[][] truck, int numberTruck, List<char[][]> trucks, int sumParcels) {
-        for (Parcel parcel : parcels) {
-            int[][] parcelContent = parcel.getContent();
-            maxLoading -= parcelContent[SIZE_PARCELS][SIZE_PARCELS];
-            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
-
-            if (maxLoading <= 0 || !parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE)) {
-                log.info("Грузовик заполнен, создается новый грузовик.");
-                numberTruck++;
-                trucks.add(truck);
-                truck = createEmptyTruck();
-                parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE);
-                maxLoading = sumParcels / countTruck;
-            }
-            TruckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
+    private static void finalizedAddTruck(List<char[][]> trucks, char[][] truck, int numberTruck, List<FullTruck> fullFullTrucks, List<String> namesParcels) {
+        if (!trucks.contains(truck)) {
+            trucks.add(truck);
+            numberTruck++;
+            fullFullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+            log.info("Последний грузовик добавлен: Truck № {}", numberTruck);
         }
-        return truck;
     }
 
-    /**
-     * Вычисляет максимальную загрузку одного грузовика на основе общего количества посылок и количества грузовиков.
-     *
-     * @param countTruck количество грузовиков
-     * @param sumParcels общая сумма размеров всех посылок
-     * @return максимальная загрузка одного грузовика
-     */
-    private int getMaxLoading(int countTruck, int sumParcels) {
-        final int averageParcelsSize = 5;
-        return sumParcels / countTruck + averageParcelsSize;
+    private int calculateMaxLoading(List<Dimension> dimensions, List<Parcel> parcels) {
+        int totalTruckArea = dimensions.stream()
+                .mapToInt(dimension -> dimension.getWidth() * dimension.getHeight())
+                .sum();
+        int totalParcelArea = parcels.stream()
+                .mapToInt(parcel -> Arrays.stream(parcel.getForm())
+                        .mapToInt(arr -> Arrays.stream(arr).sum())
+                        .sum())
+                .sum();
+        int averageTruckArea = totalTruckArea / dimensions.size();
+        log.debug("Общая площадь грузовиков: {}", totalTruckArea);
+        log.debug("Общая площадь посылок: {}", totalParcelArea);
+        log.debug("Средняя площадь грузовиков: {}", averageTruckArea);
+        return averageTruckArea < totalParcelArea ? averageTruckArea : totalParcelArea / dimensions.size();
     }
 
-    /**
-     * Вычисляет общую сумму всех посылок.
-     *
-     * @param parcels список посылок
-     * @return общая сумма размеров всех посылок
-     */
-    private int getSumParcels(List<Parcel> parcels) {
-        return parcels.stream().mapToInt(parcel -> parcel.getContent()[SIZE_PARCELS][SIZE_PARCELS]).sum();
-    }
 }

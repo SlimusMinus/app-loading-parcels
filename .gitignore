@@ -9,5 +9,5 @@ target/
 *.iws
 *.iml
 *.ipr
-loading trucks.json
-loading parcels.json
+loading truck.json
+spring-shell.log

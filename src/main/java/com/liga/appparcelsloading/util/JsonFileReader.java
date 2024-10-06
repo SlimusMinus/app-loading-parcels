@@ -1,17 +1,23 @@
 package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.liga.appparcelsloading.fabric.ObjectMapperFactory;
-import com.liga.appparcelsloading.model.Truck;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.liga.appparcelsloading.model.FullTruck;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @Slf4j
+@AllArgsConstructor
 public class JsonFileReader {
+    private final ObjectMapper mapper;
+
     /**
      * Универсальный метод для чтения данных из JSON файла
      *
@@ -20,11 +26,11 @@ public class JsonFileReader {
      * @param <T>      тип возвращаемых данных
      * @return данные типа T, прочитанные из файла
      */
-    public <T> List<T> read(String fileName, TypeReference<List<T>> typeRef) {
+    private <T> List<T> read(String fileName, TypeReference<List<T>> typeRef) {
         List<T> dataList = new ArrayList<>();
         log.info("Начало чтения файла {}", fileName);
         try {
-            dataList = ObjectMapperFactory.getInstance().readValue(new File(fileName), typeRef);
+            dataList = mapper.readValue(new File(fileName), typeRef);
             log.info("Файл успешно прочитан: {}", fileName);
         } catch (IOException e) {
             log.error("Ошибка чтения файла {}: {}", fileName, e.getMessage());
@@ -38,17 +44,7 @@ public class JsonFileReader {
      * @param fileName путь к файлу, который необходимо прочитать
      * @return список объектов Truck
      */
-    public List<Truck> readTrucks(String fileName) {
-        return read(fileName, new TypeReference<>() {});
-    }
-
-    /**
-     * Читает данные char[][] из JSON файла
-     *
-     * @param fileName путь к файлу, который необходимо прочитать
-     * @return список массивов char[][]
-     */
-    public List<char[][]> readParcels(String fileName) {
+    public List<FullTruck> readTrucks(String fileName) {
         return read(fileName, new TypeReference<>() {});
     }
 }

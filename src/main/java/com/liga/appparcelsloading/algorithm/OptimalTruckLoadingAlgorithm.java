@@ -1,84 +1,108 @@
 package com.liga.appparcelsloading.algorithm;
 
+import com.liga.appparcelsloading.model.Dimension;
+import com.liga.appparcelsloading.model.FullTruck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.JsonFileWriter;
-import com.liga.appparcelsloading.util.TruckWriter;
-import com.liga.appparcelsloading.validator.TruckCountValidate;
+import com.liga.appparcelsloading.util.TruckJsonWriter;
+import com.liga.appparcelsloading.util.ParcelMapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Класс, реализующий алгоритм оптимальной загрузки посылок в грузовики.
- * <p>
- * Данный класс наследуется от {@link TruckLoadAlgorithm} и реализует алгоритм оптимальной загрузки,
- * который загружает посылки в грузовики, пока грузовик не заполнится, после чего создается новый грузовик.
- * </p>
+ * Класс реализует алгоритм оптимальной загрузки грузовиков посылками.
+ * Использует различные сервисы для создания пустых грузовиков, загрузки посылок и записи результатов в файл.
  */
 @Slf4j
-public class OptimalTruckLoadingAlgorithm extends TruckLoadAlgorithm {
+@Service
+@AllArgsConstructor
+public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
-    private final TruckCountValidate validateTruckCount;
-
-    public OptimalTruckLoadingAlgorithm(ParcelLoaderService parcelLoaderService, TruckFactoryService truckFactoryService, TruckCountValidate validateTruckCount) {
-        super(truckFactoryService);
-        this.parcelLoaderService = parcelLoaderService;
-        this.validateTruckCount = validateTruckCount;
-    }
+    private final TruckFactoryService truckFactoryService;
+    private final ParcelMapper parcelMapper;
+    private final TruckJsonWriter truckJsonWriter;
 
     /**
-     * Выполняет распределение посылок по грузовикам с использованием оптимального алгоритма загрузки.
-     * Каждая посылка добавляется в грузовик до тех пор, пока не будет заполнена его вместимость.
-     * Если грузовик заполняется, создается новый грузовик.
+     * Загружает посылки по их именам в грузовики, создаваемые на основе предоставленных размеров.
      *
-     * @param parcels   список посылок для распределения
-     * @param countTruck количество грузовиков, доступных для загрузки
-     * @return список массивов символов, представляющих состояние грузовиков после загрузки
+     * @param nameParcels      строка с именами посылок, разделёнными запятыми, точками с запятой, пробелами и т.д.
+     * @param dimensionsTrucks список размеров грузовиков
+     * @return список массивов символов, представляющих полные грузовики с посылками
      */
     @Override
-    public List<char[][]> loadParcels(List<Parcel> parcels, int countTruck) {
-        log.info("Начало упаковки {} посылок.", parcels.size());
-        List<char[][]> trucks = new ArrayList<>();
-        int numberTruck = 1;
-        char[][] emptyTruck = createEmptyTruck();
+    public List<char[][]> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
+        log.info("Загрузка посылок по именам: {}", nameParcels);
+        String[] splitNames = nameParcels.split("[,;: ]+");
+        Map<String, Parcel> allParcels = parcelMapper.getAllParcels();
 
-        trucks.add(getFullTruck(parcels, emptyTruck, numberTruck, trucks));
-        log.info("Упаковка завершена. Количество грузовиков: {}", trucks.size());
-        if(validateTruckCount.validateTruckCount(countTruck, trucks)){
-            throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + trucks.size() + " грузовика(ов)");
-        }
-        JSON_FILE_WRITER.writeParcels(trucks, "loading parcels.json");
-        return trucks;
+        List<Parcel> parcels = Arrays.stream(splitNames)
+                .filter(allParcels::containsKey)
+                .map(allParcels::get)
+                .toList();
+        log.info("Найдено {} посылок для загрузки.", parcels.size());
+        return loadParcels(parcels, dimensionsTrucks);
     }
 
     /**
-     * Заполняет грузовики посылками до тех пор, пока текущий грузовик не будет полностью загружен.
-     * Если грузовик заполнен, создается новый грузовик, и оставшиеся посылки загружаются в него.
+     * Загружает список посылок в грузовики, создаваемые на основе предоставленных размеров.
      *
-     * @param parcels      список посылок для распределения
-     * @param truck        текущий грузовик, который заполняется
-     * @param numberTruck  номер текущего грузовика
-     * @param trucks       список всех грузовиков
-     * @return заполненный грузовик, если в него удалось поместить все посылки
+     * @param parcels          список посылок для загрузки
+     * @param dimensionsTrucks список размеров грузовиков
+     * @return список массивов символов, представляющих полные грузовики с посылками
      */
-    private char[][] getFullTruck(List<Parcel> parcels, char[][] truck, int numberTruck, List<char[][]> trucks) {
-        for (Parcel parcel : parcels) {
-            int[][] parcelContent = parcel.getContent();
-            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
+    @Override
+    public List<char[][]> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
+        log.info("Начало упаковки {} посылок.", parcels.size());
+        List<char[][]> emptyTrucks = truckFactoryService.createEmptyTruck(dimensionsTrucks);
 
-            if (!parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE)) {
-                log.info("Грузовик заполнен, создается новый грузовик.");
+        List<char[][]> allFullTruck = getFullTruck(parcels, emptyTrucks);
+        log.info("Упаковка завершена. Количество грузовиков: {}", allFullTruck.size());
+
+        return allFullTruck;
+    }
+
+
+    private List<char[][]> getFullTruck(List<Parcel> parcels, List<char[][]> emptyTrucks) {
+        List<String> namesParcels = new ArrayList<>();
+        List<FullTruck> fullTrucks = new ArrayList<>();
+        int numberTruck = 0;
+        int counter = 0;
+        char[][] truck = emptyTrucks.get(counter);
+
+        for (Parcel parcel : parcels) {
+            int[][] parcelContent = parcel.getForm();
+            log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
+            char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcelContent);
+            namesParcels.add(parcel.getName());
+            if (!parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
                 numberTruck++;
-                trucks.add(truck);
-                truck = createEmptyTruck();
-                parcelLoaderService.placeParcels(truck, parcelContent, TRUCK_SIZE);
+                log.info("Грузовик заполнен, создается новый грузовик.");
+                fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+                counter++;
+                if (counter < emptyTrucks.size()) {
+                    truck = emptyTrucks.get(counter);
+                    parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length);
+                } else if (counter >= emptyTrucks.size() + 1) {
+                    throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + counter + " грузовика(ов)");
+                }                truck = emptyTrucks.get(counter);
+                namesParcels = new ArrayList<>();
             }
-            TruckWriter.getLoadingTrucks(numberTruck, parcelContent[0][0]);
         }
-        return truck;
+
+        if (!namesParcels.isEmpty()) {
+            numberTruck++;
+            fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+            log.info("Последний грузовик добавлен: Truck № {}", numberTruck);
+        }
+
+        truckJsonWriter.write(fullTrucks, "loading truck.json");
+        return emptyTrucks;
     }
 }
