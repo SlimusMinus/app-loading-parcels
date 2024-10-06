@@ -8,30 +8,23 @@ import com.liga.appparcelsloading.model.FullTruck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.util.JsonFileReader;
-import com.liga.appparcelsloading.util.ParcelMapper;
-import com.liga.appparcelsloading.util.TruckJsonWriter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @AllArgsConstructor
 @Service
 public class TruckService {
-    private final ParcelLoaderService parcelLoaderService;
-    private final TruckFactoryService truckFactoryService;
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
     private final ParcelRepository repository;
-    private final ParcelMapper parcelMapper;
-    private final TruckJsonWriter truckJsonWriter;
+    private final EvenTruckLoadingAlgorithm evenTruckLoadingAlgorithm;
+    private final OptimalTruckLoadingAlgorithm optimalTruckLoadingAlgorithm;
 
-    public void load(String algorithmType, String heights, String weights) {
+    public Optional<List<char[][]>> load(String algorithmType, String heights, String weights) {
         int[] heightArray = Arrays.stream(heights.split(","))
                 .mapToInt(Integer::parseInt)
                 .toArray();
@@ -39,16 +32,14 @@ public class TruckService {
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        if(algorithmType.equals("even")) {
-            EvenTruckLoadingAlgorithm truckLoadAlgorithm = new EvenTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
-            algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray);
-        } else if(algorithmType.equals("optimal")) {
-            OptimalTruckLoadingAlgorithm truckLoadAlgorithm = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
-            algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray);
+        TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
+        if (truckLoadAlgorithm != null) {
+            return Optional.of(algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray));
         }
+        return Optional.empty();
     }
 
-    public void loadByName(String algorithmType, String nameParcels, String heights, String weights) {
+    public Optional<List<char[][]>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
         int[] heightArray = Arrays.stream(heights.split(","))
                 .mapToInt(Integer::parseInt)
                 .toArray();
@@ -56,29 +47,38 @@ public class TruckService {
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        if(algorithmType.equals("even")) {
-            EvenTruckLoadingAlgorithm truckLoadAlgorithm = new EvenTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
-            algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray);
-        } else if(algorithmType.equals("optimal")) {
-            OptimalTruckLoadingAlgorithm truckLoadAlgorithm = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
-            algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray);
+        TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
+        if (truckLoadAlgorithm != null) {
+            return Optional.of(algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray));
         }
+        return Optional.empty();
     }
 
-    public void showTrucks() {
-        readJson();
+    public List<FullTruck> showTrucks() {
+        return readJson();
     }
 
-    private void algorithmLoadingParcelsByName(TruckLoadAlgorithm truckLoadAlgorithm, String nameParcels, int[] height, int[] weight) {
-        algorithmLoadingParcels(truckLoadAlgorithm, nameParcels, height, weight);
+    private TruckLoadAlgorithm getAlgorithm(String algorithmType) {
+        return switch (algorithmType) {
+            case "even" -> evenTruckLoadingAlgorithm;
+            case "optimal" -> optimalTruckLoadingAlgorithm;
+            default -> {
+                log.error("Неизвестный тип алгоритма: {}", algorithmType);
+                yield null;
+            }
+        };
     }
 
-    private void algorithmLoadingParcels(TruckLoadAlgorithm truckLoadAlgorithm, int[] height, int[] weight) {
-        algorithmLoadingParcels(truckLoadAlgorithm, null, height, weight);
+    private List<char[][]> algorithmLoadingParcelsByName(TruckLoadAlgorithm truckLoadAlgorithm, String nameParcels, int[] height, int[] weight) {
+        return algorithmLoadingParcels(truckLoadAlgorithm, nameParcels, height, weight);
+    }
+
+    private List<char[][]> algorithmLoadingParcels(TruckLoadAlgorithm truckLoadAlgorithm, int[] height, int[] weight) {
+        return algorithmLoadingParcels(truckLoadAlgorithm, null, height, weight);
     }
 
 
-    private void algorithmLoadingParcels(TruckLoadAlgorithm truckLoadAlgorithm, String nameParcels, int[] height, int[] weight) {
+    private List<char[][]> algorithmLoadingParcels(TruckLoadAlgorithm truckLoadAlgorithm, String nameParcels, int[] height, int[] weight) {
         List<Dimension> allDimension = getAllDimension(height, weight);
         List<char[][]> fullTrucks;
         if (nameParcels != null) {
@@ -88,6 +88,7 @@ public class TruckService {
         }
         log.info("Успешно упаковано {} грузовиков.", fullTrucks.size());
         truckPrinterService.printTrucks(fullTrucks);
+        return fullTrucks;
     }
 
     private List<Dimension> getAllDimension(int[] heights, int[] widths) {
@@ -105,11 +106,12 @@ public class TruckService {
         return allDimension;
     }
 
-    private void readJson() {
+    private List<FullTruck> readJson() {
         final List<FullTruck> fullTruckList = jsonFileReader.readTrucks("loading truck.json");
         for (FullTruck fullTruck : fullTruckList) {
             readFullTruck(fullTruck);
         }
+        return fullTruckList;
     }
 
     private void readFullTruck(FullTruck fullTruck) {

@@ -4,6 +4,8 @@ import com.liga.appparcelsloading.model.Parcel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,14 +16,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @DisplayName("Тестирование класса FileReader")
+@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
 class FileReaderTest {
 
+    @Autowired
     private FileReader fileReader;
 
-    @BeforeEach
-    void setUp() {
-        fileReader = new FileReader();
-    }
 
     @Test
     @DisplayName("добавление 2 посылок с размером 9 и 6")

@@ -5,12 +5,10 @@ import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.util.ParcelMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
 
 /**
  * Сервис для управления посылками.
@@ -23,7 +21,7 @@ public class ParcelService {
     private final ParcelRepository repository;
     private final ParcelMapper parcelMapper;
 
-    public void save(String name, char symbol, int weight, String orientation) {
+    public Parcel save(String name, char symbol, int weight, String orientation) {
         Optional<Parcel> existingParcel = getParcel(name);
         Parcel parcel = existingParcel.orElse(new Parcel());
         saveParcel(parcel, name, symbol, weight, orientation);
@@ -32,19 +30,19 @@ public class ParcelService {
         } else {
             log.info("Посылка '{}' успешно создана", parcel.getName());
         }
+        return parcel;
     }
 
-    public void getParcelByName(String name) {
-        Optional<Parcel> parcel = getParcel(name);
-        System.out.println(parcel);
+    public Optional<Parcel> getParcelByName(String name) {
+        return getParcel(name);
     }
 
-    public void getAllParcels() {
-        repository.findAll().forEach(System.out::println);
+    public List<Parcel> getAllParcels() {
+        return repository.findAll();
     }
 
-    public void deleteParcel(String name) {
-        repository.delete(name);
+    public boolean deleteParcel(String name) {
+        return repository.deleteByName(name);
     }
 
     private Optional<Parcel> getParcel(String nameParcel) {

@@ -84,7 +84,7 @@ public class DefaultParcelRepository implements ParcelRepository {
      * @return true, если посылка была успешно удалена, или false, если посылка не найдена.
      */
     @Override
-    public boolean delete(String name) {
+    public boolean deleteByName(String name) {
         Parcel removedParcel = parcels.remove(name);
         if (removedParcel == null) {
             log.warn("Попытка удаления несуществующей посылки с названием '{}'", name);
@@ -92,5 +92,10 @@ public class DefaultParcelRepository implements ParcelRepository {
         }
         log.info("Удалена посылка с названием '{}'", name);
         return true;
+    }
+
+    @Override
+    public boolean deleteById(int parcelId) {
+        return false;
     }
 }

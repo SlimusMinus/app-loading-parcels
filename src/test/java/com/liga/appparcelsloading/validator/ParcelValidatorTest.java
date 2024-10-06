@@ -4,6 +4,8 @@ import com.liga.appparcelsloading.model.Parcel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,19 +13,15 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
 class ParcelValidatorTest {
 
+    @Autowired
     private ParcelValidator parcelValidator;
-
-    @BeforeEach
-    void setUp() {
-        parcelValidator = new ParcelValidator();
-    }
 
     @Test
     @DisplayName("Проверка валидной посылки")
     void testValidParcel() {
-        // Создаем валидные посылки
         List<Parcel> parcels = new ArrayList<>();
         parcels.add(createParcel(new int[][]{{1}, {2, 2}}));
         parcels.add(createParcel(new int[][]{{3, 3, 3}, {4, 4, 4, 4}}));

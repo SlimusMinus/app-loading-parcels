@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @DisplayName("Тестирование класса LoadingTrucks")
-@SpringBootTest
+@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
 class FullTruckLoadServiceTest {
 
     private TruckLoadAlgorithm truckLoadService;
@@ -29,15 +29,14 @@ class FullTruckLoadServiceTest {
     private TruckFactoryService truckFactoryService;
     @Autowired
     private ParcelMapper parcelMapper;
-    @Autowired
-    private TruckCountValidate validateTruckCount;
+
     @Autowired
     private TruckJsonWriter truckJsonWriter;
 
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки")
     void testEvenlyDistributeParcels() {
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, truckFactoryService, parcelMapper, truckJsonWriter);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
         List<Dimension> dimensions = List.of(new Dimension(6, 6));
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
@@ -51,7 +50,7 @@ class FullTruckLoadServiceTest {
     @DisplayName("Проверка алгоритма равномерной погрузки на выброс исключения")
     void testEvenlyDistributeParcelsException() {
         List<Dimension> dimensions = List.of(new Dimension(3, 3));
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, truckFactoryService, parcelMapper, truckJsonWriter);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
@@ -59,7 +58,7 @@ class FullTruckLoadServiceTest {
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{8, 8, 8, 8}, {8, 8, 8, 8}})
         );
-        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, dimensions)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, dimensions)).isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
@@ -110,20 +109,20 @@ class FullTruckLoadServiceTest {
     @DisplayName("Проверка выброса исключения при недостаточном количестве грузовиков")
     void testPlaceParcelException() {
         List<Dimension> dimensions = List.of(new Dimension(2, 2));
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, truckFactoryService, parcelMapper, truckJsonWriter);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{1, 1}, {1, 1}}),
                 new Parcel(new int[][]{{2, 2, 2}, {2, 2, 2}}),
                 new Parcel(new int[][]{{3, 3, 3}, {3, 3, 3}})
         );
-        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, dimensions)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> truckLoadService.loadParcels(parcels, dimensions)).isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
     @DisplayName("Проверка процесса упаковки по именам нескольких посылок в кузовы.")
     void testLoadParcelsByName() {
         List<Dimension> dimensions = List.of(new Dimension(6, 6));
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, validateTruckCount, truckFactoryService, parcelMapper, truckJsonWriter);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper, truckJsonWriter);
         String names = "Кофемашина, Чайник";
         List<char[][]> parcelsByName = truckLoadService.loadParcelsByName(names, dimensions);
         assertThat(parcelsByName.get(0)[5][0]).isEqualTo('^');

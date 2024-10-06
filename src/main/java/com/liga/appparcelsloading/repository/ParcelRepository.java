@@ -37,8 +37,10 @@ public interface ParcelRepository {
     /**
      * Удаляет посылку по имени.
      *
-     * @param name имя посылки, которую нужно удалить.
+     * @param parcelName уникальный идентификатор посылки, которую нужно удалить.
      * @return true, если посылка была успешно удалена, или false, если посылка не найдена.
      */
-    boolean delete(String name);
+    boolean deleteByName(String parcelName);
+
+    boolean deleteById(int parcelId);
 }

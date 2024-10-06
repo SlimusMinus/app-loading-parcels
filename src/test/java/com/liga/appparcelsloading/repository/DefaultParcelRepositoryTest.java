@@ -1,29 +1,35 @@
 package com.liga.appparcelsloading.repository;
 
-import com.liga.appparcelsloading.util.ParcelMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.liga.appparcelsloading.DataTest.GET_BY_NAME_PARCEL;
 import static com.liga.appparcelsloading.DataTest.PARCEL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
 class DefaultParcelRepositoryTest {
-    private final ParcelMapper parcelMapper = new ParcelMapper();
-    private final ParcelRepository repository = new DefaultParcelRepository(parcelMapper);
+
+    @Autowired
+    private ParcelRepository repository;
 
     @Test
     @DisplayName("Сохранение новой посылки")
     void save() {
         repository.save(PARCEL);
         assertThat(repository.findAll().size()).isEqualTo(11);
-        assertThat(repository.findByName("Стиральная машина")).isEqualTo(PARCEL);
+        assertThat(repository.findByName("Стиральная машина").get()).isEqualTo(PARCEL);
+        repository.deleteByName(PARCEL.getName());
     }
 
     @Test
     @DisplayName("Получение посылки по названию")
     void findByName() {
-        assertThat(repository.findByName("Чайник")).isEqualTo(GET_BY_NAME_PARCEL);
+        assertThat(repository.findByName("Чайник").get()).isEqualTo(GET_BY_NAME_PARCEL);
     }
 
     @Test
@@ -34,14 +40,18 @@ class DefaultParcelRepositoryTest {
 
     @Test
     @DisplayName("Удаление посылки по названию")
-    void delete() {
-        assertThat(repository.delete("Чайник")).isTrue();
+    @Transactional
+    void deleteByName() {
+        assertThat(repository.deleteByName("Чайник")).isTrue();
         assertThat(repository.findAll().size()).isEqualTo(9);
+        repository.save(GET_BY_NAME_PARCEL);
     }
 
     @Test
     @DisplayName("Удаление посылки с несуществующим названием")
-    void deleteNotFoundName() {
-        assertThat(repository.delete("Лопата")).isFalse();
+    void deleteByNameNotFoundName() {
+        String parcelName = "Лопата";
+        assertThatThrownBy(() -> repository.deleteByName(parcelName))
+                .hasMessage("Посылка с названием '" + parcelName + "' не найдена");
     }
 }

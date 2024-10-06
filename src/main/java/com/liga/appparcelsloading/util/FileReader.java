@@ -2,6 +2,7 @@ package com.liga.appparcelsloading.util;
 
 import com.liga.appparcelsloading.model.Parcel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
+@Component
 public class FileReader {
     /**
      * Читает данные о посылках из файла и возвращает список объектов Parcels.

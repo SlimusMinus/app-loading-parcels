@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.model;
 
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Parcel {
+    @Id
+    private int parcelId;
     private String name;
     private char symbol;
     private int[][] form;
@@ -19,4 +22,11 @@ public class Parcel {
     public Parcel(int[][] form) {
         this.form = form;
     }
+
+    public Parcel(String name, char symbol, int[][] form) {
+        this.name = name;
+        this.symbol = symbol;
+        this.form = form;
+    }
+
 }
