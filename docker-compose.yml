@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres:16.4
+    container_name: load_parcels_db
+    volumes:
+      - type: volume
+        target: /var/lib/postgresql/dataConfig
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: alexandr
+      POSTGRES_PASSWORD: krylov
+    ports:
+      - "5432:5432"
