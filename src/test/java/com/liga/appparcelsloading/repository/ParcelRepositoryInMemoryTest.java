@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
-class DefaultParcelRepositoryTest {
+class ParcelRepositoryInMemoryTest {
 
     @Autowired
     private ParcelRepository repository;

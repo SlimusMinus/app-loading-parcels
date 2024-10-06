@@ -2,7 +2,7 @@ package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liga.appparcelsloading.model.FullTruck;
+import com.liga.appparcelsloading.model.Truck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +16,10 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class TruckJsonWriter {
+public class JsonFileWriter {
     private final ObjectMapper mapper;
 
-    public TruckJsonWriter(ObjectMapper mapper) {
+    public JsonFileWriter(ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
@@ -30,8 +30,8 @@ public class TruckJsonWriter {
      * @param fileName   имя файла для записи
      * @return обновленный список грузовиков
      */
-    public List<FullTruck> write(List<FullTruck> fullTrucks, String fileName) {
-        List<FullTruck> trucks = new ArrayList<>();
+    public List<Truck> write(List<Truck> fullTrucks, String fileName) {
+        List<Truck> trucks = new ArrayList<>();
         try {
             File file = new File(fileName);
             if (file.exists()) {

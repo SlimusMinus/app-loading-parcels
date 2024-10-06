@@ -1,11 +1,11 @@
 package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Dimension;
-import com.liga.appparcelsloading.model.FullTruck;
+import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.TruckJsonWriter;
+import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.ParcelMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
     private final TruckFactoryService truckFactoryService;
     private final ParcelMapper parcelMapper;
-    private final TruckJsonWriter truckJsonWriter;
+    private final JsonFileWriter jsonFileWriter;
 
     /**
      * Загружает посылки по их именам в грузовики, создаваемые на основе предоставленных размеров.
@@ -71,7 +71,7 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
 
     private List<char[][]> getFullTruck(List<Parcel> parcels, List<char[][]> emptyTrucks) {
         List<String> namesParcels = new ArrayList<>();
-        List<FullTruck> fullTrucks = new ArrayList<>();
+        List<Truck> trucks = new ArrayList<>();
         int numberTruck = 0;
         int counter = 0;
         char[][] truck = emptyTrucks.get(counter);
@@ -84,7 +84,7 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
             if (!parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
                 numberTruck++;
                 log.info("Грузовик заполнен, создается новый грузовик.");
-                fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+                trucks.add(new Truck("Truck № " + numberTruck, namesParcels, truck));
                 counter++;
                 if (counter < emptyTrucks.size()) {
                     truck = emptyTrucks.get(counter);
@@ -98,11 +98,11 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
 
         if (!namesParcels.isEmpty()) {
             numberTruck++;
-            fullTrucks.add(new FullTruck("Truck № " + numberTruck, namesParcels, truck));
+            trucks.add(new Truck("Truck № " + numberTruck, namesParcels, truck));
             log.info("Последний грузовик добавлен: Truck № {}", numberTruck);
         }
 
-        truckJsonWriter.write(fullTrucks, "loading truck.json");
+        jsonFileWriter.write(trucks, "loading truck.json");
         return emptyTrucks;
     }
 }

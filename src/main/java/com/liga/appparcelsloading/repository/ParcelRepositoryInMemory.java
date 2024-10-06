@@ -2,10 +2,10 @@ package com.liga.appparcelsloading.repository;
 
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.util.ParcelMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,12 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Repository
-public class DefaultParcelRepository implements ParcelRepository {
+public class ParcelRepositoryInMemory implements ParcelRepository {
     private final ParcelMapper parcelMapper;
 
     private final Map<String, Parcel> parcels = new ConcurrentHashMap<>();
 
-    public DefaultParcelRepository(ParcelMapper parcelMapper) {
+    public ParcelRepositoryInMemory(ParcelMapper parcelMapper) {
         this.parcelMapper = parcelMapper;
     }
 
@@ -94,8 +94,4 @@ public class DefaultParcelRepository implements ParcelRepository {
         return true;
     }
 
-    @Override
-    public boolean deleteById(int parcelId) {
-        return false;
-    }
 }

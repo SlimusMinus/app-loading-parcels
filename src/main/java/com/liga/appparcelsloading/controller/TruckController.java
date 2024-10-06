@@ -1,7 +1,7 @@
 package com.liga.appparcelsloading.controller;
 
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
-import com.liga.appparcelsloading.model.FullTruck;
+import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.TruckService;
 import com.liga.appparcelsloading.util.FileReader;
 import lombok.AllArgsConstructor;
@@ -36,7 +36,7 @@ public class TruckController {
     }
 
     @ShellMethod(value = "Показать содержимое грузовиков", key = "show-fullTrucks")
-    public List<FullTruck> showTrucks() {
+    public List<Truck> showTrucks() {
         return truckService.showTrucks();
     }
 }

@@ -17,7 +17,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ParcelService {
+public class ParcelServiceInMemory {
     private final ParcelRepository repository;
     private final ParcelMapper parcelMapper;
 

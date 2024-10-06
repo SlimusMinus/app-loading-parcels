@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
-class FullTruckLoadAlgorithmTest {
+class TruckLoadAlgorithmTest {
 
     @Autowired
     private ParcelMapper parcelMapper;

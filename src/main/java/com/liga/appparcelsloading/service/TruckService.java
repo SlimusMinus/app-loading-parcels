@@ -4,7 +4,7 @@ import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
 import com.liga.appparcelsloading.model.Dimension;
-import com.liga.appparcelsloading.model.FullTruck;
+import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.util.JsonFileReader;
@@ -33,10 +33,7 @@ public class TruckService {
                 .toArray();
 
         TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
-        if (truckLoadAlgorithm != null) {
-            return Optional.of(algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray));
-        }
-        return Optional.empty();
+        return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray));
     }
 
     public Optional<List<char[][]>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
@@ -48,13 +45,10 @@ public class TruckService {
                 .toArray();
 
         TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
-        if (truckLoadAlgorithm != null) {
-            return Optional.of(algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray));
-        }
-        return Optional.empty();
+        return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray));
     }
 
-    public List<FullTruck> showTrucks() {
+    public List<Truck> showTrucks() {
         return readJson();
     }
 
@@ -106,21 +100,21 @@ public class TruckService {
         return allDimension;
     }
 
-    private List<FullTruck> readJson() {
-        final List<FullTruck> fullTruckList = jsonFileReader.readTrucks("loading truck.json");
-        for (FullTruck fullTruck : fullTruckList) {
-            readFullTruck(fullTruck);
+    private List<Truck> readJson() {
+        final List<Truck> truckList = jsonFileReader.readTrucks("loading truck.json");
+        for (Truck truck : truckList) {
+            readFullTruck(truck);
         }
-        return fullTruckList;
+        return truckList;
     }
 
-    private void readFullTruck(FullTruck fullTruck) {
-        log.info("Грузовик {} содержит", fullTruck.getNameTruck());
-        final List<String> truckParcels = fullTruck.getNameParcels();
+    private void readFullTruck(Truck truck) {
+        log.info("Грузовик {} содержит", truck.getNameTruck());
+        final List<String> truckParcels = truck.getNameParcels();
         for (String parcel : truckParcels) {
             System.out.println(parcel);
         }
-        truckPrinterService.printTrucks(Collections.singletonList(fullTruck.getParcels()));
+        truckPrinterService.printTrucks(Collections.singletonList(truck.getParcels()));
     }
 
     private List<Parcel> getAllParcels() {

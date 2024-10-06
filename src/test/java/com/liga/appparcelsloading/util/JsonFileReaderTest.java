@@ -1,7 +1,6 @@
 package com.liga.appparcelsloading.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liga.appparcelsloading.model.FullTruck;
+import com.liga.appparcelsloading.model.Truck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class JsonFileReaderTest {
         String TEST_FILE = "test_trucks.json";
         Path jsonFilePath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(TEST_FILE)).toURI());
 
-        List<FullTruck> trucks = jsonFileReader.readTrucks(jsonFilePath.toString());
+        List<Truck> trucks = jsonFileReader.readTrucks(jsonFilePath.toString());
 
         assertThat(trucks).hasSize(2);
         assertThat(trucks.get(0).getNameTruck()).isEqualTo("Truck № 2");
@@ -40,7 +39,7 @@ public class JsonFileReaderTest {
     @Test
     @DisplayName("Проверка обработки отсутствующего файла")
     void testReadFileNotFound() {
-        List<FullTruck> trucks = jsonFileReader.readTrucks("non_existing_file.json");
+        List<Truck> trucks = jsonFileReader.readTrucks("non_existing_file.json");
         assertThat(trucks).isEmpty();
     }
 }

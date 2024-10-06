@@ -1,9 +1,11 @@
 package com.liga.appparcelsloading.model;
 
-import jakarta.persistence.Id;
+import com.liga.appparcelsloading.converter.IntArrayToJsonConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 /**
  * Представляет упаковку с содержимым в виде двумерного массива.
@@ -12,11 +14,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "parcels")
 public class Parcel {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int parcelId;
     private String name;
     private char symbol;
+    @Convert(converter = IntArrayToJsonConverter.class)
+    @Column(columnDefinition = "jsonb")
     private int[][] form;
 
     public Parcel(int[][] form) {
@@ -28,5 +36,4 @@ public class Parcel {
         this.symbol = symbol;
         this.form = form;
     }
-
 }
