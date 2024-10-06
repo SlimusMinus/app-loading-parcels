@@ -1,7 +1,7 @@
 package com.liga.appparcelsloading.service;
 
 import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.repository.DataJpaRepository;
+import com.liga.appparcelsloading.repository.ParcelDataJpaRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Slf4j
 public class ParcelRestService {
-    private final DataJpaRepository crudRepository;
+    private final ParcelDataJpaRepository crudRepository;
 
     public ResponseEntity<Parcel> findById(int id) {
         Optional<Parcel> parcel = crudRepository.findById(id);

@@ -1,26 +1,32 @@
 package com.liga.appparcelsloading.model;
 
 import com.liga.appparcelsloading.converter.CharArrayToJsonConverter;
-import com.liga.appparcelsloading.converter.StringListToArrayConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "trucks")
 public class Truck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "name_truck")
     private String nameTruck;
-    @Convert(converter = StringListToArrayConverter.class)
-    @Column(columnDefinition = "text[]")
-    private List<String> nameParcels;
+    @Column(name = "name_parcels")
+    private String nameParcels;
     @Convert(converter = CharArrayToJsonConverter.class)
     @Column(columnDefinition = "json")
     private char[][] parcels;
+
+    public Truck(String nameTruck, String nameParcels, char[][] parcels) {
+        this.nameTruck = nameTruck;
+        this.nameParcels = nameParcels;
+        this.parcels = parcels;
+    }
 }

@@ -82,7 +82,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
 
     private List<char[][]> getFullTruck(List<Parcel> parcels, int maxLoading, List<char[][]> emptyTrucks) {
         List<char[][]> trucks = new ArrayList<>();
-        List<String> namesParcels = new ArrayList<>();
+        StringBuilder namesParcels = new StringBuilder();
         List<Truck> fullTrucks = new ArrayList<>();
         int counter = 0;
         int numberTruck = 0;
@@ -94,13 +94,13 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
             char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcel.getForm());
             maxLoadingOneTruck -= parcelContent[FIRST_INDEX][FIRST_INDEX];
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcel.getForm()));
-            namesParcels.add(parcel.getName());
+            namesParcels.append(parcel.getName());
 
             if (maxLoadingOneTruck <= 0 || !parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
                 trucks.add(truck);
                 log.info("Грузовик заполнен, создается новый грузовик.");
                 numberTruck++;
-                fullTrucks.add(new Truck("Truck № " + numberTruck, namesParcels, truck));
+                fullTrucks.add(new Truck("Truck № " + numberTruck, namesParcels.toString(), truck));
                 counter++;
                 if (counter < emptyTrucks.size()) {
                     truck = emptyTrucks.get(counter);
@@ -109,16 +109,16 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
                 } else if (counter >= emptyTrucks.size() + 1) {
                     throw new IllegalArgumentException("Не удалось загрузить посылки, необходимо " + counter + " грузовика(ов)");
                 }
-                namesParcels = new ArrayList<>();
+                namesParcels = new StringBuilder();
             }
         }
-        finalizedAddTruck(trucks, truck, numberTruck, fullTrucks, namesParcels);
+        finalizedAddTruck(trucks, truck, numberTruck, fullTrucks, namesParcels.toString());
         log.info("Количество загруженных грузовиков: {}", trucks.size());
         jsonFileWriter.write(fullTrucks, "loading truck.json");
         return trucks;
     }
 
-    private static void finalizedAddTruck(List<char[][]> trucks, char[][] truck, int numberTruck, List<Truck> fullTrucks, List<String> namesParcels) {
+    private static void finalizedAddTruck(List<char[][]> trucks, char[][] truck, int numberTruck, List<Truck> fullTrucks, String namesParcels) {
         if (!trucks.contains(truck)) {
             trucks.add(truck);
             numberTruck++;

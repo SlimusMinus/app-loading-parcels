@@ -17,7 +17,7 @@ import java.util.*;
 @Slf4j
 @AllArgsConstructor
 @Service
-public class TruckService {
+public class TruckInMemoryService {
     private final JsonFileReader jsonFileReader;
     private final TruckPrinterService truckPrinterService;
     private final ParcelRepository repository;
@@ -110,10 +110,8 @@ public class TruckService {
 
     private void readFullTruck(Truck truck) {
         log.info("Грузовик {} содержит", truck.getNameTruck());
-        final List<String> truckParcels = truck.getNameParcels();
-        for (String parcel : truckParcels) {
-            System.out.println(parcel);
-        }
+        String nameParcels = truck.getNameParcels();
+        System.out.println(nameParcels);
         truckPrinterService.printTrucks(Collections.singletonList(truck.getParcels()));
     }
 
