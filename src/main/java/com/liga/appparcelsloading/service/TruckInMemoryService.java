@@ -1,13 +1,12 @@
 package com.liga.appparcelsloading.service;
 
-import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
-import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
-import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
+import com.liga.appparcelsloading.algorithm.*;
 import com.liga.appparcelsloading.model.Dimension;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.util.JsonFileReader;
+import com.liga.appparcelsloading.util.JsonFileWriter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,33 +22,31 @@ public class TruckInMemoryService {
     private final ParcelRepository repository;
     private final EvenTruckLoadingAlgorithm evenTruckLoadingAlgorithm;
     private final OptimalTruckLoadingAlgorithm optimalTruckLoadingAlgorithm;
+    private final JsonFileWriter jsonFileWriter;
+
 
     public Optional<List<char[][]>> load(String algorithmType, String heights, String weights) {
-        int[] heightArray = Arrays.stream(heights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-        int[] weightArray = Arrays.stream(weights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-
+        int[] heightArray = getDimension(heights);
+        int[] weightArray = getDimension(weights);
         TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray));
     }
 
     public Optional<List<char[][]>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
-        int[] heightArray = Arrays.stream(heights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-        int[] weightArray = Arrays.stream(weights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-
+        int[] heightArray = getDimension(heights);
+        int[] weightArray = getDimension(weights);
         TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray));
     }
 
     public List<Truck> showTrucks() {
         return readJson();
+    }
+
+    private static int[] getDimension(String heights) {
+        return Arrays.stream(heights.split(","))
+                .mapToInt(Integer::parseInt)
+                .toArray();
     }
 
     private TruckLoadAlgorithm getAlgorithm(String algorithmType) {
@@ -76,9 +73,12 @@ public class TruckInMemoryService {
         List<Dimension> allDimension = getAllDimension(height, weight);
         List<char[][]> fullTrucks;
         if (nameParcels != null) {
-            fullTrucks = truckLoadAlgorithm.loadParcelsByName(nameParcels, allDimension);
+            fullTrucks = truckLoadAlgorithm.loadParcelsByName(nameParcels, allDimension).stream().map(Truck::getParcels).toList();
+            jsonFileWriter.write(truckLoadAlgorithm.loadParcelsByName(nameParcels, allDimension), "loading truck.json");
+
         } else {
-            fullTrucks = truckLoadAlgorithm.loadParcels(getAllParcels(), allDimension);
+            fullTrucks = truckLoadAlgorithm.loadParcels(getAllParcels(), allDimension).stream().map(Truck::getParcels).toList();
+            jsonFileWriter.write(truckLoadAlgorithm.loadParcels(getAllParcels(), allDimension), "loading truck.json");
         }
         log.info("Успешно упаковано {} грузовиков.", fullTrucks.size());
         truckPrinterService.printTrucks(fullTrucks);

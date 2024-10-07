@@ -54,6 +54,7 @@ class ParcelRepositoryInMemoryTest {
     void deleteByNameNotFoundName() {
         String parcelName = "Лопата";
         assertThatThrownBy(() -> repository.deleteByName(parcelName))
-                .hasMessage("Посылка с названием '" + parcelName + "' не найдена");
-    }
+                .isInstanceOf(org.springframework.dao.InvalidDataAccessApiUsageException.class)
+                .hasCauseInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Посылка с названием 'Лопата' не найдена");    }
 }

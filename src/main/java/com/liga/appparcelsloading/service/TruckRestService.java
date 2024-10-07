@@ -1,8 +1,10 @@
 package com.liga.appparcelsloading.service;
 
-import com.liga.appparcelsloading.algorithm.EvenTruckLoadingRestAlgorithm;
-import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingRestAlgorithm;
-import com.liga.appparcelsloading.algorithm.TruckRestAlgorithm;
+import com.liga.appparcelsloading.algorithm.EvenTruckLoadingAlgorithm;
+import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
+import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
+import com.liga.appparcelsloading.dto.TruckDto;
+import com.liga.appparcelsloading.mapper.TruckMapper;
 import com.liga.appparcelsloading.model.Dimension;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
@@ -25,13 +27,13 @@ import java.util.Optional;
 public class TruckRestService {
     private final ParcelRepository repository;
     private final TruckDataJpaRepository truckDataJpaRepository;
-    private final OptimalTruckLoadingRestAlgorithm optimalTruckLoadingAlgorithm;
-    private final EvenTruckLoadingRestAlgorithm evenTruckLoadingAlgorithm;
+    private final OptimalTruckLoadingAlgorithm optimalTruckLoadingAlgorithm;
+    private final EvenTruckLoadingAlgorithm evenTruckLoadingAlgorithm;
 
     public Optional<List<Truck>> load(String algorithmType, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
-        TruckRestAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
+        TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
         List<Truck> trucks = algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray);
         truckDataJpaRepository.saveAll(trucks);
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(trucks);
@@ -40,14 +42,14 @@ public class TruckRestService {
     public Optional<List<Truck>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
-        TruckRestAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
+        TruckLoadAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
         List<Truck> trucks = algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray);
         truckDataJpaRepository.saveAll(trucks);
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(trucks);
     }
 
-    public ResponseEntity<List<Truck>> findAll() {
-        List<Truck> parcels = truckDataJpaRepository.findAll();
+    public ResponseEntity<List<TruckDto>> findAll() {
+        List<TruckDto> parcels = truckDataJpaRepository.findAll().stream().map(TruckMapper.INSTANCE::getTruckDto).toList();
         if (parcels.isEmpty()) {
             log.info("Список грузовиков пуст");
             return ResponseEntity.noContent().build();
@@ -56,11 +58,11 @@ public class TruckRestService {
         return ResponseEntity.ok(parcels);
     }
 
-    public ResponseEntity<Truck> findById(int id) {
+    public ResponseEntity<TruckDto> findById(int id) {
         Optional<Truck> parcel = truckDataJpaRepository.findById(id);
         if (parcel.isPresent()) {
             log.info("Найдена посылка с id '{}': {}", id, parcel.get());
-            return ResponseEntity.ok(parcel.get());
+            return ResponseEntity.ok(TruckMapper.INSTANCE.getTruckDto(parcel.get()));
         } else {
             log.warn("Посылка с '{}' id не найдена", id);
             return ResponseEntity.notFound().build();
@@ -85,7 +87,7 @@ public class TruckRestService {
                 .toArray();
     }
 
-    private TruckRestAlgorithm getAlgorithm(String algorithmType) {
+    private TruckLoadAlgorithm getAlgorithm(String algorithmType) {
         return switch (algorithmType) {
             case "even" -> evenTruckLoadingAlgorithm;
             case "optimal" -> optimalTruckLoadingAlgorithm;
@@ -96,16 +98,16 @@ public class TruckRestService {
         };
     }
 
-    private List<Truck> algorithmLoadingParcelsByName(TruckRestAlgorithm algorithm, String nameParcels, int[] height, int[] weight) {
+    private List<Truck> algorithmLoadingParcelsByName(TruckLoadAlgorithm algorithm, String nameParcels, int[] height, int[] weight) {
         return algorithmLoadingParcels(algorithm, nameParcels, height, weight);
     }
 
-    private List<Truck> algorithmLoadingParcels(TruckRestAlgorithm algorithm, int[] height, int[] weight) {
+    private List<Truck> algorithmLoadingParcels(TruckLoadAlgorithm algorithm, int[] height, int[] weight) {
         return algorithmLoadingParcels(algorithm, null, height, weight);
     }
 
 
-    private List<Truck> algorithmLoadingParcels(TruckRestAlgorithm truckLoadAlgorithm, String nameParcels, int[] height, int[] weight) {
+    private List<Truck> algorithmLoadingParcels(TruckLoadAlgorithm truckLoadAlgorithm, String nameParcels, int[] height, int[] weight) {
         List<Dimension> allDimension = getAllDimension(height, weight);
         List<Truck> fullTrucks;
         if (nameParcels != null) {

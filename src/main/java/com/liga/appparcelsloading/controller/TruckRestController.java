@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.controller;
 
+import com.liga.appparcelsloading.dto.TruckDto;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.TruckRestService;
 import lombok.AllArgsConstructor;
@@ -39,12 +40,12 @@ public class TruckRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Truck>> getTrucks() {
+    public ResponseEntity<List<TruckDto>> getTrucks() {
         return truckRestService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Truck> getTruckById(@PathVariable int id){
+    public ResponseEntity<TruckDto> getTruckById(@PathVariable int id){
         return truckRestService.findById(id);
     }
 

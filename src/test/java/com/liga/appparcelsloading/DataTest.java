@@ -6,6 +6,10 @@ import java.util.*;
 
 public class DataTest {
     public static final int TRUCK_SIZE = 6;
+    public static final int NOT_VALID_ID = 999;
+    public static final int UPDATE_ID = 1;
+    public static final int DELETE_ID = 7;
+    public static final int SIZE_AFTER_SAVE = 11;
     public static final int PARCELS_FROM_FILE = 10;
     public static final Parcel PARCEL = new Parcel("Стиральная машина", '+', new int[][]{{3, 3, 3}});
     public static final char[][] SYMBOLS = new char[][]{{'+', '+', '+'}};

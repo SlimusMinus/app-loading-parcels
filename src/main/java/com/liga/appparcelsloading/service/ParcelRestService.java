@@ -1,5 +1,7 @@
 package com.liga.appparcelsloading.service;
 
+import com.liga.appparcelsloading.dto.ParcelDto;
+import com.liga.appparcelsloading.mapper.ParcelMapper;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelDataJpaRepository;
 import lombok.AllArgsConstructor;
@@ -17,19 +19,19 @@ import java.util.Optional;
 public class ParcelRestService {
     private final ParcelDataJpaRepository crudRepository;
 
-    public ResponseEntity<Parcel> findById(int id) {
+    public ResponseEntity<ParcelDto> findById(int id) {
         Optional<Parcel> parcel = crudRepository.findById(id);
         if (parcel.isPresent()) {
             log.info("Найдена посылка с id '{}': {}", id, parcel.get());
-            return ResponseEntity.ok(parcel.get());
+            return ResponseEntity.ok(ParcelMapper.INSTANCE.getParcelDto(parcel.get()));
         } else {
             log.warn("Посылка с '{}' id не найдена", id);
             return ResponseEntity.notFound().build();
         }
     }
 
-    public ResponseEntity<List<Parcel>> findAll() {
-        List<Parcel> parcels = crudRepository.findAll();
+    public ResponseEntity<List<ParcelDto>> findAll() {
+        List<ParcelDto> parcels = crudRepository.findAll().stream().map(ParcelMapper.INSTANCE::getParcelDto).toList();
         if (parcels.isEmpty()) {
             log.info("Список посылок пуст");
             return ResponseEntity.noContent().build();

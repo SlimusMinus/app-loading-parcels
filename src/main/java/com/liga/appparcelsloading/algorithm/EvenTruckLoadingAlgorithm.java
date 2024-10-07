@@ -1,73 +1,43 @@
 package com.liga.appparcelsloading.algorithm;
 
 import com.liga.appparcelsloading.model.Dimension;
-import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.ParcelMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Класс, реализующий алгоритм равномерного распределения посылок по грузовикам.
- * <p>
- * Данный класс наследуется от {@link TruckLoadAlgorithm} и распределяет посылки равномерно по грузовикам
- * с учетом вместимости грузовиков. Основная логика заключается в том, что посылки загружаются в грузовики,
- * пока вместимость грузовика не будет исчерпана, после чего создается новый грузовик.
- * </p>
- */
-@Slf4j
-@Service
+@Component
 @AllArgsConstructor
+@Slf4j
 public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private static final int FIRST_INDEX = 0;
     private final ParcelLoaderService parcelLoaderService;
     private final TruckFactoryService truckFactoryService;
     private final ParcelMapper parcelMapper;
-    private final JsonFileWriter jsonFileWriter;
-    /**
-     * Основной метод для равномерного распределения посылок по грузовикам.
-     * <p>
-     * Загружает список посылок в грузовики, исходя из доступных размеров грузовиков.
-     * </p>
-     *
-     * @param parcels          список посылок, которые нужно загрузить
-     * @param dimensionsTrucks список размеров доступных грузовиков
-     * @return список грузовиков, загруженных посылками
-     */
     @Override
-    public List<char[][]> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
+    public List<Truck> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
         log.info("Начало равномерного распределения {} посылок.", parcels.size());
         List<char[][]> emptyTrucks = truckFactoryService.createEmptyTruck(dimensionsTrucks);
 
         int maxLoading = calculateMaxLoading(dimensionsTrucks, parcels);
         log.info("Максимальная загрузка одного грузовика: {}", maxLoading);
 
-        List<char[][]> allFullTruck = getFullTruck(parcels, maxLoading, emptyTrucks);
+        List<Truck> allFullTruck = getFullTruck(parcels, maxLoading, emptyTrucks);
         log.info("Упаковка завершена. Количество грузовиков: {}", allFullTruck.size());
         return allFullTruck;
     }
 
-    /**
-     * Метод для загрузки посылок по их именам.
-     * <p>
-     * Загружает посылки в грузовики, используя названия посылок, указанные в строке.
-     * </p>
-     *
-     * @param nameParcels      строка с названиями посылок, разделёнными разделителями
-     * @param dimensionsTrucks список размеров доступных грузовиков
-     * @return список грузовиков, загруженных посылками
-     */
     @Override
-    public List<char[][]> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
+    public List<Truck> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
         log.info("Загрузка посылок по именам: {}", nameParcels);
         String delimiterRegex = "[,;: ]+";
         String[] splitNames = nameParcels.split(delimiterRegex);
@@ -80,7 +50,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return loadParcels(parcels, dimensionsTrucks);
     }
 
-    private List<char[][]> getFullTruck(List<Parcel> parcels, int maxLoading, List<char[][]> emptyTrucks) {
+    private List<Truck> getFullTruck(List<Parcel> parcels, int maxLoading, List<char[][]> emptyTrucks) {
         List<char[][]> trucks = new ArrayList<>();
         StringBuilder namesParcels = new StringBuilder();
         List<Truck> fullTrucks = new ArrayList<>();
@@ -94,7 +64,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
             char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcel.getForm());
             maxLoadingOneTruck -= parcelContent[FIRST_INDEX][FIRST_INDEX];
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcel.getForm()));
-            namesParcels.append(parcel.getName());
+            namesParcels.append(parcel.getName()).append(" ");
 
             if (maxLoadingOneTruck <= 0 || !parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
                 trucks.add(truck);
@@ -114,8 +84,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         }
         finalizedAddTruck(trucks, truck, numberTruck, fullTrucks, namesParcels.toString());
         log.info("Количество загруженных грузовиков: {}", trucks.size());
-        jsonFileWriter.write(fullTrucks, "loading truck.json");
-        return trucks;
+        return fullTrucks;
     }
 
     private static void finalizedAddTruck(List<char[][]> trucks, char[][] truck, int numberTruck, List<Truck> fullTrucks, String namesParcels) {
@@ -142,5 +111,4 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         log.debug("Средняя площадь грузовиков: {}", averageTruckArea);
         return averageTruckArea < totalParcelArea ? averageTruckArea : totalParcelArea / dimensions.size();
     }
-
 }

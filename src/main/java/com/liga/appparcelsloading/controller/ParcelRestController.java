@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.controller;
 
+import com.liga.appparcelsloading.dto.ParcelDto;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.service.ParcelRestService;
 import lombok.AllArgsConstructor;
@@ -18,12 +19,12 @@ public class ParcelRestController {
     private final ParcelRestService service;
 
     @GetMapping
-    public ResponseEntity<List<Parcel>> getAllParcels() {
+    public ResponseEntity<List<ParcelDto>> getAllParcels() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Parcel> getParcelById(@PathVariable int id) {
+    public ResponseEntity<ParcelDto> getParcelById(@PathVariable int id) {
         return service.findById(id);
     }
 
