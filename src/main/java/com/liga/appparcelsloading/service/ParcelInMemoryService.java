@@ -2,7 +2,7 @@ package com.liga.appparcelsloading.service;
 
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.repository.ParcelRepository;
-import com.liga.appparcelsloading.util.ParcelMapper;
+import com.liga.appparcelsloading.util.ParcelDataMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ParcelServiceInMemory {
+public class ParcelInMemoryService {
     private final ParcelRepository repository;
-    private final ParcelMapper parcelMapper;
+    private final ParcelDataMapper parcelDataMapper;
 
     public Parcel save(String name, char symbol, int weight, String orientation) {
         Optional<Parcel> existingParcel = getParcel(name);
@@ -55,15 +55,15 @@ public class ParcelServiceInMemory {
         int[][] form;
         switch (orientation) {
             case "1": {
-                form = parcelMapper.setVerticalForm(weight);
+                form = parcelDataMapper.setVerticalForm(weight);
             }
             break;
             case "2": {
-                form = parcelMapper.setHorizontalForm(weight);
+                form = parcelDataMapper.setHorizontalForm(weight);
             }
             break;
             default:
-                form = parcelMapper.setHorizontalForm(weight);
+                form = parcelDataMapper.setHorizontalForm(weight);
         }
         parcel.setForm(form);
         repository.save(parcel);

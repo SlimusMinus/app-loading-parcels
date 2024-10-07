@@ -11,14 +11,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
-class ParcelMapperTest {
+class ParcelDataMapperTest {
     @Autowired
-    private ParcelMapper parcelMapper;
+    private ParcelDataMapper parcelDataMapper;
 
     @Test
     @DisplayName("Проверка количества посылок прочитанных из файла")
     void testParcelMapper() {
-        assertThat(parcelMapper.getAllParcels().size()).isEqualTo(PARCELS_FROM_FILE);
+        assertThat(parcelDataMapper.getAllParcels().size()).isEqualTo(PARCELS_FROM_FILE);
     }
 
 }

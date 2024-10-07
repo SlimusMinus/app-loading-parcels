@@ -1,7 +1,7 @@
 package com.liga.appparcelsloading.controller;
 
 import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.service.ParcelServiceInMemory;
+import com.liga.appparcelsloading.service.ParcelInMemoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -14,25 +14,25 @@ import java.util.Optional;
 @ShellComponent
 @AllArgsConstructor
 public class ParcelInMemoryController {
-    private final ParcelServiceInMemory parcelServiceInMemory;
+    private final ParcelInMemoryService parcelInMemoryService;
 
     @ShellMethod(value = "Создать или обновить посылку", key = "save-parcel")
     public Parcel save(String name, char symbol, int weight, String orientation) {
-        return parcelServiceInMemory.save(name, symbol, weight, orientation);
+        return parcelInMemoryService.save(name, symbol, weight, orientation);
     }
 
     @ShellMethod(value = "Получить посылку по имени", key = "get-parcel")
     public Optional<Parcel> showParcelByName(String name) {
-        return parcelServiceInMemory.getParcelByName(name);
+        return parcelInMemoryService.getParcelByName(name);
     }
 
     @ShellMethod(value = "Получить все посылки", key = "get-all-parcels")
     public List<Parcel> showAll() {
-        return parcelServiceInMemory.getAllParcels();
+        return parcelInMemoryService.getAllParcels();
     }
 
     @ShellMethod(value = "Удалить посылку", key = "delete-parcel")
     public boolean delete(String name) {
-        return parcelServiceInMemory.deleteParcel(name);
+        return parcelInMemoryService.deleteParcel(name);
     }
 }

@@ -104,7 +104,8 @@ public class TruckJpaStorageTest {
 
     private String createTruckTable() {
         return """
-                CREATE TABLE IF NOT EXISTS trucks
+                DROP TABLE IF EXISTS trucks;
+                CREATE TABLE trucks
                   (
                       id           SERIAL PRIMARY KEY,
                       name_truck   VARCHAR(255) NOT NULL,

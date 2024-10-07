@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -28,8 +30,7 @@ import static com.liga.appparcelsloading.DataTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@TestPropertySource(locations = "classpath:application.properties")
-@SpringBootTest
+@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
 @Slf4j
 @Transactional
 @SuppressWarnings("resource")
@@ -59,6 +60,14 @@ public class ParcelJpaStorageTest {
             log.error("SQL got exception", e);
         }
     }
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
+    }
+
 
     @Test
     @DisplayName("Тестирование метода findById - посылка найдена")
@@ -134,7 +143,8 @@ public class ParcelJpaStorageTest {
 
     private String createTable() {
         return """
-                CREATE TABLE IF NOT EXISTS parcels
+                DROP TABLE IF EXISTS parcels;
+                CREATE TABLE parcels
                 (
                     id     SERIAL PRIMARY KEY,
                     name   VARCHAR(255),

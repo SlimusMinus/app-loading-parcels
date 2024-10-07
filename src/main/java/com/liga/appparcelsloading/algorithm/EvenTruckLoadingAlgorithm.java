@@ -5,7 +5,7 @@ import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.ParcelMapper;
+import com.liga.appparcelsloading.util.ParcelDataMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private static final int FIRST_INDEX = 0;
     private final ParcelLoaderService parcelLoaderService;
     private final TruckFactoryService truckFactoryService;
-    private final ParcelMapper parcelMapper;
+    private final ParcelDataMapper parcelDataMapper;
     @Override
     public List<Truck> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
         log.info("Начало равномерного распределения {} посылок.", parcels.size());
@@ -41,7 +41,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         log.info("Загрузка посылок по именам: {}", nameParcels);
         String delimiterRegex = "[,;: ]+";
         String[] splitNames = nameParcels.split(delimiterRegex);
-        Map<String, Parcel> allParcels = parcelMapper.getAllParcels();
+        Map<String, Parcel> allParcels = parcelDataMapper.getAllParcels();
         List<Parcel> parcels = Arrays.stream(splitNames)
                 .filter(allParcels::containsKey)
                 .map(allParcels::get)
@@ -61,7 +61,7 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         log.debug("Первый грузовик создан с максимальной загрузкой: {}", maxLoadingOneTruck);
         for (Parcel parcel : parcels) {
             int[][] parcelContent = parcel.getForm();
-            char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcel.getForm());
+            char[][] symbolParcels = parcelDataMapper.getSymbolParcels(parcel, parcel.getForm());
             maxLoadingOneTruck -= parcelContent[FIRST_INDEX][FIRST_INDEX];
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcel.getForm()));
             namesParcels.append(parcel.getName()).append(" ");

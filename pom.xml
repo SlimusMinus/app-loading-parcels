@@ -22,6 +22,7 @@
         <flyway.version>9.16.3</flyway.version>
         <postgresql.version>42.7.4</postgresql.version>
         <testcontainers.version>1.20.1</testcontainers.version>
+        <telegrambots.version>6.3.0</telegrambots.version>
 
     </properties>
 
@@ -52,6 +53,15 @@
             <artifactId>spring-shell-starter</artifactId>
             <version>${shell.version}</version>
         </dependency>
+
+        <!-- Telegram bots -->
+        <!-- https://mvnrepository.com/artifact/org.telegram/telegrambots -->
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots</artifactId>
+            <version>6.9.7.1</version>
+        </dependency>
+
 
         <!-- Flyway-database-postgresql -->
         <dependency>

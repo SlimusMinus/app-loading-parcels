@@ -1,7 +1,7 @@
 package com.liga.appparcelsloading.repository;
 
 import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.util.ParcelMapper;
+import com.liga.appparcelsloading.util.ParcelDataMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -18,17 +18,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Repository
 public class ParcelRepositoryInMemory implements ParcelRepository {
-    private final ParcelMapper parcelMapper;
+    private final ParcelDataMapper parcelDataMapper;
 
     private final Map<String, Parcel> parcels = new ConcurrentHashMap<>();
 
-    public ParcelRepositoryInMemory(ParcelMapper parcelMapper) {
-        this.parcelMapper = parcelMapper;
+    public ParcelRepositoryInMemory(ParcelDataMapper parcelDataMapper) {
+        this.parcelDataMapper = parcelDataMapper;
     }
 
     @PostConstruct
     public void init() {
-        this.parcels.putAll(parcelMapper.getAllParcels());
+        this.parcels.putAll(parcelDataMapper.getAllParcels());
         log.info("Инициализация DefaultParcelRepository с {} посылками", parcels.size());
     }
 

@@ -17,7 +17,7 @@ import java.util.Arrays;
 @Slf4j
 public class CharArrayToJsonConverter implements AttributeConverter<char[][], String> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public String convertToDatabaseColumn(char[][] attribute) {

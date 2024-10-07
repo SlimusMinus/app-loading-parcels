@@ -5,7 +5,7 @@ import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.ParcelMapper;
+import com.liga.appparcelsloading.util.ParcelDataMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,13 @@ import java.util.Map;
 public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
     private final TruckFactoryService truckFactoryService;
-    private final ParcelMapper parcelMapper;
+    private final ParcelDataMapper parcelDataMapper;
 
     @Override
     public List<Truck> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
         log.info("Загрузка посылок по именам: {}", nameParcels);
         String[] splitNames = nameParcels.split("[,;: ]+");
-        Map<String, Parcel> allParcels = parcelMapper.getAllParcels();
+        Map<String, Parcel> allParcels = parcelDataMapper.getAllParcels();
 
         List<Parcel> parcels = Arrays.stream(splitNames)
                 .filter(allParcels::containsKey)
@@ -59,7 +59,7 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         for (Parcel parcel : parcels) {
             int[][] parcelContent = parcel.getForm();
             log.debug("Попытка разместить посылку: {}", Arrays.deepToString(parcelContent));
-            char[][] symbolParcels = parcelMapper.getSymbolParcels(parcel, parcelContent);
+            char[][] symbolParcels = parcelDataMapper.getSymbolParcels(parcel, parcelContent);
             namesParcels.append(parcel.getName()).append(" ");
             if (!parcelLoaderService.placeParcels(truck, symbolParcels, truck.length, truck[0].length)) {
                 numberTruck++;

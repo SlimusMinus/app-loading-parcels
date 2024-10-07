@@ -19,7 +19,7 @@ import java.io.IOException;
 @Slf4j
 public class IntArrayToJsonConverter implements AttributeConverter<int[][], String> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public String convertToDatabaseColumn(int[][] attribute) {

@@ -5,7 +5,7 @@ import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
 import com.liga.appparcelsloading.model.Dimension;
 import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
-import com.liga.appparcelsloading.util.ParcelMapper;
+import com.liga.appparcelsloading.util.ParcelDataMapper;
 import com.liga.appparcelsloading.util.JsonFileWriter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class TruckLoadServiceTest {
     @Autowired
     private TruckFactoryService truckFactoryService;
     @Autowired
-    private ParcelMapper parcelMapper;
+    private ParcelDataMapper parcelDataMapper;
 
     @Autowired
     private JsonFileWriter jsonFileWriter;
@@ -39,7 +39,7 @@ class TruckLoadServiceTest {
     @Test
     @DisplayName("Проверка алгоритма равномерной погрузки")
     void testEvenlyDistributeParcels() {
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelDataMapper);
         List<Dimension> dimensions = List.of(new Dimension(6, 6));
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
@@ -53,7 +53,7 @@ class TruckLoadServiceTest {
     @DisplayName("Проверка алгоритма равномерной погрузки на выброс исключения")
     void testEvenlyDistributeParcelsException() {
         List<Dimension> dimensions = List.of(new Dimension(3, 3));
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelDataMapper);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
                 new Parcel(new int[][]{{9, 9, 9}, {9, 9, 9}, {9, 9, 9}}),
@@ -112,7 +112,7 @@ class TruckLoadServiceTest {
     @DisplayName("Проверка выброса исключения при недостаточном количестве грузовиков")
     void testPlaceParcelException() {
         List<Dimension> dimensions = List.of(new Dimension(2, 2));
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelDataMapper);
         List<Parcel> parcels = List.of(
                 new Parcel(new int[][]{{1, 1}, {1, 1}}),
                 new Parcel(new int[][]{{2, 2, 2}, {2, 2, 2}}),
@@ -125,7 +125,7 @@ class TruckLoadServiceTest {
     @DisplayName("Проверка процесса упаковки по именам нескольких посылок в кузовы.")
     void testLoadParcelsByName() {
         List<Dimension> dimensions = List.of(new Dimension(6, 6));
-        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelMapper);
+        truckLoadService = new OptimalTruckLoadingAlgorithm(parcelLoaderService, truckFactoryService, parcelDataMapper);
         String names = "Кофемашина, Чайник";
         List<char[][]> parcelsByName = truckLoadService.loadParcelsByName(names, dimensions).stream().map(Truck::getParcels).toList();
         assertThat(parcelsByName.get(0)[5][0]).isEqualTo('^');

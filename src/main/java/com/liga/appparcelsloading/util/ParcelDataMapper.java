@@ -17,7 +17,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @Getter
-public class ParcelMapper {
+public class ParcelDataMapper {
     private final List<String> names = List.of("Телевизор", "Кофемашина", "Чайник", "Холодильник", "Плита", "Приставка", "Комбайн", "Пылесос", "Телефон", "Наушники");
     private final Map<Integer, Character> symbols = Map.of(
             1, '!',
