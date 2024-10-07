@@ -5,7 +5,6 @@ import com.liga.appparcelsloading.model.Parcel;
 import com.liga.appparcelsloading.model.Truck;
 import com.liga.appparcelsloading.service.ParcelLoaderService;
 import com.liga.appparcelsloading.service.TruckFactoryService;
-import com.liga.appparcelsloading.util.JsonFileWriter;
 import com.liga.appparcelsloading.util.ParcelMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

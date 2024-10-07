@@ -10,7 +10,9 @@ import com.liga.appparcelsloading.repository.ParcelRepository;
 import com.liga.appparcelsloading.repository.TruckDataJpaRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,31 +29,60 @@ public class TruckRestService {
     private final EvenTruckLoadingRestAlgorithm evenTruckLoadingAlgorithm;
 
     public Optional<List<Truck>> load(String algorithmType, String heights, String weights) {
-        int[] heightArray = Arrays.stream(heights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-        int[] weightArray = Arrays.stream(weights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
+        int[] heightArray = getDimension(heights);
+        int[] weightArray = getDimension(weights);
         TruckRestAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
         List<Truck> trucks = algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray);
-        for (Truck truck : trucks) {
-            log.debug("Сохраняется грузовик: {}", truck);
-            truckDataJpaRepository.save(truck);
-        }
-        return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray));
+        truckDataJpaRepository.saveAll(trucks);
+        return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(trucks);
     }
 
     public Optional<List<Truck>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
-        int[] heightArray = Arrays.stream(heights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-        int[] weightArray = Arrays.stream(weights.split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
-
+        int[] heightArray = getDimension(heights);
+        int[] weightArray = getDimension(weights);
         TruckRestAlgorithm truckLoadAlgorithm = getAlgorithm(algorithmType);
-        return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray));
+        List<Truck> trucks = algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray);
+        truckDataJpaRepository.saveAll(trucks);
+        return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(trucks);
+    }
+
+    public ResponseEntity<List<Truck>> findAll() {
+        List<Truck> parcels = truckDataJpaRepository.findAll();
+        if (parcels.isEmpty()) {
+            log.info("Список грузовиков пуст");
+            return ResponseEntity.noContent().build();
+        }
+        log.info("Найдено {} грузовиков", parcels.size());
+        return ResponseEntity.ok(parcels);
+    }
+
+    public ResponseEntity<Truck> findById(int id) {
+        Optional<Truck> parcel = truckDataJpaRepository.findById(id);
+        if (parcel.isPresent()) {
+            log.info("Найдена посылка с id '{}': {}", id, parcel.get());
+            return ResponseEntity.ok(parcel.get());
+        } else {
+            log.warn("Посылка с '{}' id не найдена", id);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<Void> deleteById(int id) {
+        int isDeleted = truckDataJpaRepository.deleteById(id);
+        if (isDeleted != 0) {
+            log.info("Посылка с ID {} удалена", id);
+            return ResponseEntity.noContent().build();
+        } else {
+            log.warn("Посылка с ID {} не найдена", id);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private static int[] getDimension(String heights) {
+        return Arrays.stream(heights.split(","))
+                .mapToInt(Integer::parseInt)
+                .toArray();
     }
 
     private TruckRestAlgorithm getAlgorithm(String algorithmType) {

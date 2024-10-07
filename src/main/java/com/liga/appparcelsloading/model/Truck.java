@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Truck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     @Column(name = "name_truck")
     private String nameTruck;
     @Column(name = "name_parcels")
