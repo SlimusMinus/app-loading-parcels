@@ -41,12 +41,6 @@ public class ParcelValidator {
         return true;
     }
 
-    /**
-     * Подсчитывает количество вхождений каждого числа в посылке.
-     *
-     * @param content содержимое посылки
-     * @return карта с количеством вхождений каждого числа
-     */
     private Map<Integer, Integer> countNumbers(int[][] content) {
         Map<Integer, Integer> numberCounts = new HashMap<>();
         final int firstNumber = 0;
@@ -59,13 +53,6 @@ public class ParcelValidator {
         return numberCounts;
     }
 
-    /**
-     * Проверяет, что каждое число содержится необходимое количество раз.
-     * Здесь можно настроить правила для каждого числа.
-     *
-     * @param numberCounts карта с количеством вхождений каждого числа
-     * @return {@code true}, если посылка валидна; {@code false} в противном случае
-     */
     private boolean isValidParcel(Map<Integer, Integer> numberCounts) {
         for (Map.Entry<Integer, Integer> entry : numberCounts.entrySet()) {
             int number = entry.getKey();

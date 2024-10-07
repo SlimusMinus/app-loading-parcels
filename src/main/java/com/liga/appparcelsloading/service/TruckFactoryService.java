@@ -7,10 +7,21 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сервис для создания грузовиков.
+ * Предоставляет методы для создания пустых грузовиков с заданными размерами.
+ */
 @Slf4j
 @Service
 public class TruckFactoryService {
 
+    /**
+     * Создает список пустых грузовиков на основе переданных размеров.
+     *
+     * @param dimensionsTrucks список объектов Dimension, представляющих размеры грузовиков
+     * @return список пустых грузовиков в виде двумерных массивов символов,
+     *         где ' ' обозначает пустое пространство
+     */
     public List<char[][]> createEmptyTruck(List<Dimension> dimensionsTrucks) {
         log.trace("Создание пустого грузовика.");
         List<char[][]> emptyTrucks = new ArrayList<>();

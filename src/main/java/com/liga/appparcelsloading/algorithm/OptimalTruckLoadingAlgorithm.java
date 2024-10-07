@@ -15,6 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Класс OptimalTruckLoadingAlgorithm реализует алгоритм оптимальной загрузки посылок в грузовики.
+ * Посылки загружаются в грузовики на основе их размеров и доступного места в грузовике.
+ * Логирование используется для отслеживания процесса упаковки.
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -23,6 +28,13 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final TruckFactoryService truckFactoryService;
     private final ParcelDataMapper parcelDataMapper;
 
+    /**
+     * Загружает посылки в грузовики на основе списка имен посылок.
+     *
+     * @param nameParcels      строка, содержащая имена посылок для загрузки.
+     * @param dimensionsTrucks список размеров грузовиков.
+     * @return список грузовиков, загруженных посылками.
+     */
     @Override
     public List<Truck> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
         log.info("Загрузка посылок по именам: {}", nameParcels);
@@ -37,6 +49,13 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return loadParcels(parcels, dimensionsTrucks);
     }
 
+    /**
+     * Загружает список посылок в грузовики с заданными размерами.
+     *
+     * @param parcels          список посылок для загрузки.
+     * @param dimensionsTrucks список размеров грузовиков.
+     * @return список загруженных грузовиков с посылками.
+     */
     @Override
     public List<Truck> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
         log.info("Начало упаковки {} посылок.", parcels.size());
@@ -47,7 +66,6 @@ public class OptimalTruckLoadingAlgorithm implements TruckLoadAlgorithm {
 
         return allFullTruck;
     }
-
 
     private List<Truck> getFullTruck(List<Parcel> parcels, List<char[][]> emptyTrucks) {
         StringBuilder namesParcels = new StringBuilder();

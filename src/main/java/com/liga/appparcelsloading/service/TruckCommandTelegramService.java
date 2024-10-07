@@ -13,6 +13,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис для обработки команд, связанных с грузовиками, в Telegram-боте.
+ * Предоставляет методы для загрузки посылок в грузовики, получения информации о грузовиках и их удалении.
+ */
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -20,7 +24,12 @@ public class TruckCommandTelegramService {
 
     private TruckRestService truckRestService;
 
-
+    /**
+     * Обрабатывает команду для загрузки посылок в грузовики по имени.
+     *
+     * @param update  обновление из Telegram, содержащее информацию о команде
+     * @param message сообщение, которое будет отправлено в Telegram
+     */
     public void handleLoadParcelsByNameCommand(Update update, SendMessage message) {
         String commandText = update.getMessage().getText();
         String[] parts = commandText.split(" ");
@@ -30,9 +39,9 @@ public class TruckCommandTelegramService {
         }
         System.out.println(parts[1] + parts[2] + parts[3] + parts[4]);
         String algorithmType = parts[1];
-        String nameParcels = parts[2];  // Здесь у нас только названия посылок
-        String heights = parts[3];  // Здесь должны быть только высоты (числа)
-        String weights = parts[4];  // Здесь должны быть только веса (числа)
+        String nameParcels = parts[2];
+        String heights = parts[3];
+        String weights = parts[4];
 
         try {
             Optional<List<Truck>> trucks = truckRestService.loadByName(algorithmType, nameParcels, heights, weights);
@@ -47,6 +56,12 @@ public class TruckCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду для загрузки посылок в грузовики.
+     *
+     * @param update  обновление из Telegram, содержащее информацию о команде
+     * @param message сообщение, которое будет отправлено в Telegram
+     */
     public void handleLoadParcelInTruckCommand(Update update, SendMessage message) {
         String commandText = update.getMessage().getText();
         String[] parts = commandText.split(" ");
@@ -73,6 +88,12 @@ public class TruckCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду для удаления грузовика по ID.
+     *
+     * @param command команда для удаления грузовика
+     * @param message сообщение, которое будет отправлено в Telegram
+     */
     public void handleDeleteTruckByCommand(String command, SendMessage message) {
         String[] parts = command.split(" ");
         if (parts.length == 2) {
@@ -92,6 +113,12 @@ public class TruckCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду для получения информации о грузовике по ID.
+     *
+     * @param command команда для получения информации о грузовике
+     * @param message сообщение, которое будет отправлено в Telegram
+     */
     public void handleGetTruckByIdCommand(String command, SendMessage message) {
         String[] parts = command.split(" ");
         if (parts.length == 2) {
@@ -111,6 +138,11 @@ public class TruckCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду для получения списка всех грузовиков.
+     *
+     * @param message сообщение, которое будет отправлено в Telegram
+     */
     public void handleGetTrucksCommand(SendMessage message) {
         List<TruckDto> parcels = truckRestService.findAll().getBody();
         assert parcels != null;

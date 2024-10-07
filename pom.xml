@@ -23,7 +23,8 @@
         <postgresql.version>42.7.4</postgresql.version>
         <testcontainers.version>1.20.1</testcontainers.version>
         <telegrambots.version>6.3.0</telegrambots.version>
-
+        <swaggeer.version>2.9.2</swaggeer.version>
+        <springfox-spring-webmvc.version>2.10.0</springfox-spring-webmvc.version>
     </properties>
 
     <dependencies>
@@ -55,11 +56,27 @@
         </dependency>
 
         <!-- Telegram bots -->
-        <!-- https://mvnrepository.com/artifact/org.telegram/telegrambots -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>6.9.7.1</version>
+        </dependency>
+
+        <!-- Swagger dependencies -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swaggeer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swaggeer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-spring-webmvc</artifactId>
+            <version>${springfox-spring-webmvc.version}</version>
         </dependency>
 
 

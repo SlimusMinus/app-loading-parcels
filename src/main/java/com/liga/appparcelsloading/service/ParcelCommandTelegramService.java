@@ -11,16 +11,35 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
+/**
+ * Сервис для обработки команд, связанных с посылками, в Telegram.
+ *
+ * Класс {@code ParcelCommandTelegramService} предоставляет методы для обработки
+ * команд, таких как создание, обновление, получение и удаление посылок,
+ * а также отправляет соответствующие сообщения пользователю.
+ */
 @Service
 @AllArgsConstructor
 public class ParcelCommandTelegramService {
 
     private final ParcelRestService service;
 
+    /**
+     * Обрабатывает команду /start и отправляет приветственное сообщение.
+     *
+     * @param update  обновление, содержащее информацию о сообщении
+     * @param message сообщение, которое будет отправлено пользователю
+     */
     public void handleStartCommand(Update update, SendMessage message) {
         message.setText("Hello " + update.getMessage().getChat().getFirstName() + "!");
     }
 
+    /**
+     * Обрабатывает команду /createParcel для создания новой посылки.
+     *
+     * @param update  обновление, содержащее информацию о сообщении
+     * @param message сообщение, которое будет отправлено пользователю
+     */
     public void handleCreateParcelCommand(Update update, SendMessage message) {
         String commandText = update.getMessage().getText();
         String[] parts = commandText.split(" ", 4);
@@ -45,6 +64,12 @@ public class ParcelCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду /updateParcel для обновления существующей посылки.
+     *
+     * @param command команда, содержащая информацию для обновления посылки
+     * @param message сообщение, которое будет отправлено пользователю
+     */
     public void handleUpdateParcelCommand(String command, SendMessage message) {
         String[] parts = command.split(" ", 5);
         if (parts.length < 5) {
@@ -77,11 +102,22 @@ public class ParcelCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду /getParcels для получения списка всех посылок.
+     *
+     * @param message сообщение, которое будет отправлено пользователю
+     */
     public void handleGetParcelsCommand(SendMessage message) {
         List<ParcelDto> parcels = service.findAll().getBody();
         message.setText(parcels.toString());
     }
 
+    /**
+     * Обрабатывает команду /getParcel для получения информации о конкретной посылке по ID.
+     *
+     * @param command команда, содержащая ID посылки для получения
+     * @param message сообщение, которое будет отправлено пользователю
+     */
     public void handleGetParcelCommand(String command, SendMessage message) {
         String[] parts = command.split(" ");
         if (parts.length == 2) {
@@ -101,6 +137,12 @@ public class ParcelCommandTelegramService {
         }
     }
 
+    /**
+     * Обрабатывает команду /deleteParcel для удаления посылки по ID.
+     *
+     * @param command команда, содержащая ID посылки для удаления
+     * @param message сообщение, которое будет отправлено пользователю
+     */
     public void handleDeleteParcelCommand(String command, SendMessage message) {
         String[] parts = command.split(" ");
         if (parts.length == 2) {
@@ -120,6 +162,12 @@ public class ParcelCommandTelegramService {
         }
     }
 
+    /**
+     * Парсит строковые данные формы в двумерный массив целых чисел.
+     *
+     * @param formData строковые данные формы в формате [[x1, y1], [x2, y2]]
+     * @return двумерный массив целых чисел или null, если формат неверный
+     */
     private int[][] parseFormData(String formData) {
         try {
             formData = formData.trim().replaceAll("[\\[\\]]", "");
@@ -138,5 +186,4 @@ public class ParcelCommandTelegramService {
             return null;
         }
     }
-
 }

@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * Сервис для управления грузовиками в памяти.
+ * Предоставляет методы для загрузки посылок в грузовики,
+ * отображения грузовиков и чтения данных из JSON-файлов.
+ */
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -24,7 +29,15 @@ public class TruckInMemoryService {
     private final OptimalTruckLoadingAlgorithm optimalTruckLoadingAlgorithm;
     private final JsonFileWriter jsonFileWriter;
 
-
+    /**
+     * Загружает посылки в грузовики на основе указанных алгоритма, высот и весов.
+     *
+     * @param algorithmType тип алгоритма загрузки (например, "even" или "optimal")
+     * @param heights строка, содержащая высоты грузовиков, разделенные запятыми
+     * @param weights строка, содержащая веса грузовиков, разделенные запятыми
+     * @return список грузовиков с загруженными посылками, если загрузка прошла успешно;
+     *         иначе пустой Optional
+     */
     public Optional<List<char[][]>> load(String algorithmType, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
@@ -32,6 +45,17 @@ public class TruckInMemoryService {
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcels(truckLoadAlgorithm, heightArray, weightArray));
     }
 
+    /**
+     * Загружает посылки в грузовики на основе указанного имени посылок,
+     * алгоритма, высот и весов.
+     *
+     * @param algorithmType тип алгоритма загрузки (например, "even" или "optimal")
+     * @param nameParcels имя посылок, которые необходимо загрузить
+     * @param heights строка, содержащая высоты грузовиков, разделенные запятыми
+     * @param weights строка, содержащая веса грузовиков, разделенные запятыми
+     * @return список грузовиков с загруженными посылками, если загрузка прошла успешно;
+     *         иначе пустой Optional
+     */
     public Optional<List<char[][]>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
@@ -39,6 +63,11 @@ public class TruckInMemoryService {
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(algorithmLoadingParcelsByName(truckLoadAlgorithm, nameParcels, heightArray, weightArray));
     }
 
+    /**
+     * Отображает список всех грузовиков, загруженных из JSON-файла.
+     *
+     * @return список грузовиков
+     */
     public List<Truck> showTrucks() {
         return readJson();
     }

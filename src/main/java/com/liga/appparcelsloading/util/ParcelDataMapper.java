@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Класс для отображения и преобразования данных о посылках.
  * Предоставляет методы для получения всех посылок и их форм.

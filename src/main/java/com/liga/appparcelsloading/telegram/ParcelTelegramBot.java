@@ -11,6 +11,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Основной класс для Telegram-бота, который обрабатывает обновления и команды пользователей.
+ * Унаследован от {@link TelegramLongPollingBot}.
+ */
 @Component
 @Slf4j
 public class ParcelTelegramBot extends TelegramLongPollingBot {
@@ -31,6 +35,12 @@ public class ParcelTelegramBot extends TelegramLongPollingBot {
         return config.getBotToken();
     }
 
+    /**
+     * Обрабатывает полученные обновления от Telegram.
+     * Если обновление содержит текстовое сообщение, передает его для дальнейшей обработки.
+     *
+     * @param update обновление, полученное от Telegram.
+     */
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -39,6 +49,14 @@ public class ParcelTelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Обрабатывает команды, отправленные пользователем.
+     * Вызывает соответствующий сервис для обработки команды и отправляет ответное сообщение.
+     *
+     * @param update  обновление, содержащее информацию о команде.
+     * @param command команда, отправленная пользователем.
+     * @param chatId  идентификатор чата, в который будет отправлено сообщение.
+     */
     private void processCommand(Update update, String command, Long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId.toString());

@@ -3,6 +3,7 @@ package com.liga.appparcelsloading.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liga.appparcelsloading.model.Truck;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +17,9 @@ import java.util.List;
  */
 @Slf4j
 @Component
+@AllArgsConstructor
 public class JsonFileWriter {
     private final ObjectMapper mapper;
-
-    public JsonFileWriter(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
 
     /**
      * Записывает список грузовиков в JSON файл, добавляя к уже существующим.

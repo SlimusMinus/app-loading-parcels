@@ -21,6 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис для управления грузовиками, использующий REST API.
+ * Предоставляет методы для загрузки грузовиков, поиска, удаления и получения списка грузовиков.
+ */
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -30,6 +34,14 @@ public class TruckRestService {
     private final OptimalTruckLoadingAlgorithm optimalTruckLoadingAlgorithm;
     private final EvenTruckLoadingAlgorithm evenTruckLoadingAlgorithm;
 
+    /**
+     * Загружает грузовики с использованием указанного алгоритма, высот и ширин.
+     *
+     * @param algorithmType тип алгоритма для загрузки грузовиков (например, "even" или "optimal").
+     * @param heights строки, содержащие высоты грузовиков, разделенные запятыми.
+     * @param weights строки, содержащие ширины грузовиков, разделенные запятыми.
+     * @return список грузовиков, загруженных с использованием заданного алгоритма, если алгоритм найден; иначе пустой {@link Optional}.
+     */
     public Optional<List<Truck>> load(String algorithmType, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
@@ -39,6 +51,15 @@ public class TruckRestService {
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(trucks);
     }
 
+    /**
+     * Загружает грузовики по названию посылок с использованием указанного алгоритма, высот и ширин.
+     *
+     * @param algorithmType тип алгоритма для загрузки грузовиков (например, "even" или "optimal").
+     * @param nameParcels название посылок, которые нужно загрузить.
+     * @param heights строки, содержащие высоты грузовиков, разделенные запятыми.
+     * @param weights строки, содержащие ширины грузовиков, разделенные запятыми.
+     * @return список грузовиков, загруженных с использованием заданного алгоритма, если алгоритм найден; иначе пустой {@link Optional}.
+     */
     public Optional<List<Truck>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
@@ -48,6 +69,11 @@ public class TruckRestService {
         return truckLoadAlgorithm == null ? Optional.empty() : Optional.of(trucks);
     }
 
+    /**
+     * Возвращает все грузовики в виде списка {@link TruckDto}.
+     *
+     * @return список {@link TruckDto} с грузовиками. Если грузовиков нет, возвращает статус 204 (No Content).
+     */
     public ResponseEntity<List<TruckDto>> findAll() {
         List<TruckDto> parcels = truckDataJpaRepository.findAll().stream().map(TruckMapper.INSTANCE::getTruckDto).toList();
         if (parcels.isEmpty()) {
@@ -58,6 +84,12 @@ public class TruckRestService {
         return ResponseEntity.ok(parcels);
     }
 
+    /**
+     * Находит грузовик по заданному идентификатору.
+     *
+     * @param id идентификатор грузовика.
+     * @return грузовик в виде {@link TruckDto}, если он найден; иначе статус 404 (Not Found).
+     */
     public ResponseEntity<TruckDto> findById(int id) {
         Optional<Truck> parcel = truckDataJpaRepository.findById(id);
         if (parcel.isPresent()) {
@@ -69,6 +101,12 @@ public class TruckRestService {
         }
     }
 
+    /**
+     * Удаляет грузовик по заданному идентификатору.
+     *
+     * @param id идентификатор грузовика для удаления.
+     * @return статус 204 (No Content), если грузовик удален; иначе статус 404 (Not Found), если грузовик не найден.
+     */
     @Transactional
     public ResponseEntity<Void> deleteById(int id) {
         int isDeleted = truckDataJpaRepository.deleteById(id);

@@ -15,6 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Класс EvenTruckLoadingAlgorithm реализует алгоритм равномерного распределения посылок по грузовикам.
+ * Посылки распределяются по грузовикам с учетом их размеров и доступной площади.
+ * Логирование выполняется на разных уровнях, чтобы отслеживать процесс упаковки.
+ */
 @Component
 @AllArgsConstructor
 @Slf4j
@@ -23,6 +28,14 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
     private final ParcelLoaderService parcelLoaderService;
     private final TruckFactoryService truckFactoryService;
     private final ParcelDataMapper parcelDataMapper;
+
+    /**
+     * Выполняет равномерное распределение посылок по грузовикам.
+     *
+     * @param parcels          список посылок для загрузки.
+     * @param dimensionsTrucks список размеров грузовиков.
+     * @return список загруженных грузовиков с посылками.
+     */
     @Override
     public List<Truck> loadParcels(List<Parcel> parcels, List<Dimension> dimensionsTrucks) {
         log.info("Начало равномерного распределения {} посылок.", parcels.size());
@@ -36,6 +49,13 @@ public class EvenTruckLoadingAlgorithm implements TruckLoadAlgorithm {
         return allFullTruck;
     }
 
+    /**
+     * Загрузка посылок по именам, распределяя их по грузовикам.
+     *
+     * @param nameParcels      строка с именами посылок, разделенными специальными символами.
+     * @param dimensionsTrucks список размеров грузовиков.
+     * @return список загруженных грузовиков с посылками.
+     */
     @Override
     public List<Truck> loadParcelsByName(String nameParcels, List<Dimension> dimensionsTrucks) {
         log.info("Загрузка посылок по именам: {}", nameParcels);
