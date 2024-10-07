@@ -1,4 +1,4 @@
-CREATE TABLE trucks
+CREATE TABLE IF NOT EXISTS trucks
 (
     id           SERIAL PRIMARY KEY,
     name_truck   VARCHAR(255) NOT NULL,
