@@ -7,9 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Основной класс для Telegram-бота, который обрабатывает обновления и команды пользователей.
@@ -18,12 +24,25 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Component
 @Slf4j
 public class ParcelTelegramBot extends TelegramLongPollingBot {
-    @Autowired
-    private ParcelCommandTelegramService parcelCommandTelegramService;
-    @Autowired
-    private TruckCommandTelegramService truckCommandTelegramService;
-    @Autowired
-    private BotConfig config;
+    private final ParcelCommandTelegramService parcelCommandTelegramService;
+    private final TruckCommandTelegramService truckCommandTelegramService;
+    private final BotConfig config;
+
+    public ParcelTelegramBot(BotConfig config, ParcelCommandTelegramService parcelCommandTelegramService, TruckCommandTelegramService truckCommandTelegramService) {
+        this.parcelCommandTelegramService = parcelCommandTelegramService;
+        this.truckCommandTelegramService = truckCommandTelegramService;
+        this.config = config;
+        List<BotCommand> commands = new ArrayList<>();
+        commands.add(new BotCommand("/start", "Приветствие"));
+        commands.add(new BotCommand("/getparcels", "Получить все посылки из базы"));
+        commands.add(new BotCommand("/gettrucks", "Получить все загруженные грузовики из базы"));
+        try {
+            this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
+        } catch (TelegramApiException e) {
+            log.error("Ошибка ввода команд {}", e.getMessage());
+        }
+
+    }
 
     @Override
     public String getBotUsername() {
@@ -67,13 +86,13 @@ public class ParcelTelegramBot extends TelegramLongPollingBot {
                 parcelCommandTelegramService.handleCreateParcelCommand(update, message);
             } else if (command.startsWith("/updateParcel")) {
                 parcelCommandTelegramService.handleUpdateParcelCommand(command, message);
-            } else if (command.startsWith("/getParcels")) {
+            } else if (command.startsWith("/getparcels")) {
                 parcelCommandTelegramService.handleGetParcelsCommand(message);
             } else if (command.startsWith("/getParcel")) {
                 parcelCommandTelegramService.handleGetParcelCommand(command, message);
             } else if (command.startsWith("/deleteParcel")) {
                 parcelCommandTelegramService.handleDeleteParcelCommand(command, message);
-            } else if (command.startsWith("/getTrucks")) {
+            } else if (command.startsWith("/gettrucks")) {
                 truckCommandTelegramService.handleGetTrucksCommand(message);
             } else if (command.startsWith("/loadParcelsByName")) {
                 truckCommandTelegramService.handleLoadParcelsByNameCommand(update, message);
