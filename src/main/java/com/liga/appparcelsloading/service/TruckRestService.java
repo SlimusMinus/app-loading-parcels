@@ -42,6 +42,7 @@ public class TruckRestService {
      * @param weights строки, содержащие ширины грузовиков, разделенные запятыми.
      * @return список грузовиков, загруженных с использованием заданного алгоритма, если алгоритм найден; иначе пустой {@link Optional}.
      */
+    @Transactional
     public Optional<List<Truck>> load(String algorithmType, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);
@@ -60,6 +61,7 @@ public class TruckRestService {
      * @param weights строки, содержащие ширины грузовиков, разделенные запятыми.
      * @return список грузовиков, загруженных с использованием заданного алгоритма, если алгоритм найден; иначе пустой {@link Optional}.
      */
+    @Transactional
     public Optional<List<Truck>> loadByName(String algorithmType, String nameParcels, String heights, String weights) {
         int[] heightArray = getDimension(heights);
         int[] weightArray = getDimension(weights);

@@ -61,6 +61,7 @@ public class ParcelRestService {
      * @param parcel посылка для создания
      * @return ResponseEntity с сохраненной посылкой
      */
+    @Transactional
     public ResponseEntity<Parcel> create(Parcel parcel) {
         Parcel savedParcel = crudRepository.save(parcel);
         log.info("Посылка сохранена: {}", savedParcel);
@@ -74,6 +75,7 @@ public class ParcelRestService {
      * @param parcel   новые данные посылки
      * @return ResponseEntity с обновленной посылкой или статус 404, если посылка не найдена
      */
+    @Transactional
     public ResponseEntity<Parcel> update(int parcelId, Parcel parcel) {
         if (!crudRepository.existsById(parcelId)) {
             log.warn("Посылка с ID {} не найдена для обновления", parcelId);
