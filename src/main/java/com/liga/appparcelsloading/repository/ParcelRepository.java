@@ -41,6 +41,4 @@ public interface ParcelRepository {
      * @return true, если посылка была успешно удалена, или false, если посылка не найдена.
      */
     boolean deleteByName(String parcelName);
-
-    boolean deleteById(int parcelId);
 }

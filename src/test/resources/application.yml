@@ -1,0 +1,15 @@
+spring:
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        password: krylov
+        url: jdbc:postgresql://localhost:5432/postgres
+        username: alexandr
+    shell:
+        interactive:
+            enabled: false
+        script:
+            enabled: false
+telegram:
+    bot:
+        token: 7550915997:AAGTnrgzFlHbQA0xDg-ylnYr7u2OjeRUfvU
+        username: loading_parcels_bot

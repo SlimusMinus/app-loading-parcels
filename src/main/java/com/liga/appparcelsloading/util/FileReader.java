@@ -13,6 +13,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Класс {@code FileReader} отвечает за чтение данных о посылках из файла и преобразование их в объекты {@link Parcel}.
+ * Он обеспечивает построчную обработку данных файла, извлекает необходимые сведения и создает объекты {@code Parcel}.
+ * Каждая строка файла представляет собой числовые данные, которые объединяются в массивы для создания объектов {@code Parcel}.
+ * <p>
+ * Логирование используется для отслеживания процесса чтения файла, преобразования строк в данные и создания объектов {@code Parcel}.
+ * В случае ошибок при чтении файла они логируются, а метод возвращает пустой список посылок.
+ * </p>
+ *
+ * <p><b>Пример использования:</b></p>
+ * <pre>
+ *     FileReader fileReader = new FileReader();
+ *     List<Parcel> parcels = fileReader.getAllParcels("parcels.txt");
+ * </pre>
+ *
+ */
 @Slf4j
 @Component
 public class FileReader {
