@@ -1,7 +1,7 @@
 package com.liga.appparcelsloading.repository;
 
-import com.liga.appparcelsloading.truck.dto.TruckDto;
-import com.liga.appparcelsloading.truck.service.TruckRestService;
+import com.liga.appparcelsloading.service.dto.TruckDto;
+import com.liga.appparcelsloading.service.truck.TruckRestService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

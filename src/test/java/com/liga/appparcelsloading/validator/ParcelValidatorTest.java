@@ -1,6 +1,7 @@
 package com.liga.appparcelsloading.validator;
 
-import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.util.validator.ParcelValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

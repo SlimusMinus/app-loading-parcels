@@ -1,6 +1,6 @@
 package com.liga.appparcelsloading;
 
-import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.model.Parcel;
 
 import java.util.*;
 

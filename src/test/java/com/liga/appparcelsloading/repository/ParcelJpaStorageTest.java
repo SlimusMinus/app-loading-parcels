@@ -1,10 +1,9 @@
 package com.liga.appparcelsloading.repository;
 
-import com.liga.appparcelsloading.parcel.dto.ParcelDto;
-import com.liga.appparcelsloading.parcel.mapper.ParcelMapper;
-import com.liga.appparcelsloading.parcel.model.Parcel;
-import com.liga.appparcelsloading.parcel.repository.ParcelDataJpaRepository;
-import com.liga.appparcelsloading.parcel.service.ParcelRestService;
+import com.liga.appparcelsloading.service.dto.ParcelDto;
+import com.liga.appparcelsloading.service.mapper.ParcelMapper;
+import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.service.parcel.ParcelRestService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,12 +1,12 @@
 package com.liga.appparcelsloading.service;
 
-import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
-import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
-import com.liga.appparcelsloading.parcel.service.ParcelLoaderService;
-import com.liga.appparcelsloading.truck.model.Dimension;
-import com.liga.appparcelsloading.parcel.model.Parcel;
-import com.liga.appparcelsloading.truck.model.Truck;
-import com.liga.appparcelsloading.truck.service.TruckFactoryService;
+import com.liga.appparcelsloading.service.algorithm.OptimalTruckLoadingAlgorithm;
+import com.liga.appparcelsloading.service.algorithm.TruckLoadAlgorithm;
+import com.liga.appparcelsloading.model.Dimension;
+import com.liga.appparcelsloading.model.Parcel;
+import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.service.parcel.ParcelLoaderService;
+import com.liga.appparcelsloading.service.truck.TruckFactoryService;
 import com.liga.appparcelsloading.util.ParcelDataMapper;
 import com.liga.appparcelsloading.util.JsonFileWriter;
 import org.junit.jupiter.api.DisplayName;

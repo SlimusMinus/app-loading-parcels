@@ -2,7 +2,7 @@ package com.liga.appparcelsloading.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liga.appparcelsloading.truck.model.Truck;
+import com.liga.appparcelsloading.model.Truck;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.liga.appparcelsloading.util;
 
-import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.model.Parcel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
