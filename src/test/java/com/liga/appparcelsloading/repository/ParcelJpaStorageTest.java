@@ -1,8 +1,10 @@
 package com.liga.appparcelsloading.repository;
 
-import com.liga.appparcelsloading.dto.ParcelDto;
-import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.service.ParcelRestService;
+import com.liga.appparcelsloading.parcel.dto.ParcelDto;
+import com.liga.appparcelsloading.parcel.mapper.ParcelMapper;
+import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.parcel.repository.ParcelDataJpaRepository;
+import com.liga.appparcelsloading.parcel.service.ParcelRestService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -97,7 +98,8 @@ public class ParcelJpaStorageTest {
     @Test
     @DisplayName("Тестирование метода create - создание посылки")
     void testCreate() {
-        ResponseEntity<Parcel> newParcel = parcelRestService.create(PARCEL);
+        ParcelDto parcel = ParcelMapper.INSTANCE.toParcelDto(PARCEL);
+        ResponseEntity<ParcelDto> newParcel = parcelRestService.create(parcel);
         ResponseEntity<List<ParcelDto>> response = parcelRestService.findAll();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -108,7 +110,8 @@ public class ParcelJpaStorageTest {
     @Test
     @DisplayName("Тестирование метода update - обновление посылки")
     void testUpdate() {
-        ResponseEntity<Parcel> response = parcelRestService.update(UPDATE_ID, PARCEL);
+        ParcelDto parcel = ParcelMapper.INSTANCE.toParcelDto(PARCEL);
+        ResponseEntity<ParcelDto> response = parcelRestService.update(UPDATE_ID, parcel);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -120,7 +123,8 @@ public class ParcelJpaStorageTest {
     void testUpdate_NotFound() {
         Parcel parcel = new Parcel();
         parcel.setName("Не существующая посылка");
-        ResponseEntity<Parcel> response = parcelRestService.update(NOT_VALID_ID, parcel);
+        ParcelDto parcelDto = ParcelMapper.INSTANCE.toParcelDto(PARCEL);
+        ResponseEntity<ParcelDto> response = parcelRestService.update(NOT_VALID_ID, parcelDto);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 

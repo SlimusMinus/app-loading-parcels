@@ -1,6 +1,6 @@
 package com.liga.appparcelsloading.util;
 
-import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.truck.model.Truck;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 public class JsonFileReaderTest {
     @Autowired
     private JsonFileReader jsonFileReader;

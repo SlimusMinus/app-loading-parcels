@@ -1,8 +1,8 @@
 package com.liga.appparcelsloading.algorithm;
 
-import com.liga.appparcelsloading.model.Dimension;
-import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.truck.model.Dimension;
+import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.truck.model.Truck;
 
 import java.util.List;
 

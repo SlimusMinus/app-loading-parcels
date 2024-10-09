@@ -2,9 +2,11 @@ package com.liga.appparcelsloading.service;
 
 import com.liga.appparcelsloading.algorithm.OptimalTruckLoadingAlgorithm;
 import com.liga.appparcelsloading.algorithm.TruckLoadAlgorithm;
-import com.liga.appparcelsloading.model.Dimension;
-import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.model.Truck;
+import com.liga.appparcelsloading.parcel.service.ParcelLoaderService;
+import com.liga.appparcelsloading.truck.model.Dimension;
+import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.truck.model.Truck;
+import com.liga.appparcelsloading.truck.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.ParcelDataMapper;
 import com.liga.appparcelsloading.util.JsonFileWriter;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тестирование класса LoadingTrucks")
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 class TruckLoadServiceTest {
 
     private TruckLoadAlgorithm truckLoadService;

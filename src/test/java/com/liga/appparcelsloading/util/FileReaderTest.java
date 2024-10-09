@@ -1,7 +1,6 @@
 package com.liga.appparcelsloading.util;
 
-import com.liga.appparcelsloading.model.Parcel;
-import org.junit.jupiter.api.BeforeEach;
+import com.liga.appparcelsloading.parcel.model.Parcel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @DisplayName("Тестирование класса FileReader")
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 class FileReaderTest {
 
     @Autowired

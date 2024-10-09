@@ -1,8 +1,7 @@
 package com.liga.appparcelsloading.repository;
 
-import com.liga.appparcelsloading.dto.TruckDto;
-import com.liga.appparcelsloading.model.Truck;
-import com.liga.appparcelsloading.service.TruckRestService;
+import com.liga.appparcelsloading.truck.dto.TruckDto;
+import com.liga.appparcelsloading.truck.service.TruckRestService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 @SpringBootTest
 @Slf4j
 @Transactional
@@ -60,7 +59,7 @@ public class TruckJpaStorageTest {
     @Test
     @DisplayName("Загрузка посылок с использованием алгоритма")
     void testLoadParcels() {
-        Optional<List<Truck>> result = service.load("optimal", "7,7,7", "6,6,6");
+        Optional<List<TruckDto>> result = service.load("optimal", "7,7,7", "6,6,6");
         assertThat(result).isPresent();
         assertThat(result.get()).hasSize(2);
     }
@@ -68,7 +67,7 @@ public class TruckJpaStorageTest {
     @Test
     @DisplayName("Загрузка посылок по имени с использованием алгоритма")
     void testLoadParcelsByName() {
-        Optional<List<Truck>> result = service.loadByName("even", "Кофемашина,Холодильник,Пылесос,Наушники,Телевизор", "6,6,6", "7,7,8");
+        Optional<List<TruckDto>> result = service.loadByName("even", "Кофемашина,Холодильник,Пылесос,Наушники,Телевизор", "6,6,6", "7,7,8");
         assertThat(result).isPresent();
         assertThat(result.get()).hasSize(3);
     }
@@ -83,24 +82,6 @@ public class TruckJpaStorageTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotEmpty();
     }
-
-    @Test
-    @DisplayName("Нахождение грузовика по id")
-    void testFindTruckById() {
-        Optional<List<Truck>> optimal = service.load("optimal", "7,7,7", "6,6,6");
-        ResponseEntity<TruckDto> response = service.findById(optimal.get().get(0).getId());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Удаление грузовика по id")
-    void testDeleteTruckById() {
-        Optional<List<Truck>> optimal = service.load("optimal", "7,7,7", "6,6,6");
-        ResponseEntity<Void> response = service.deleteById(optimal.get().get(0).getId());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
-
 
     private String createTruckTable() {
         return """

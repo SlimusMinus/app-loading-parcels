@@ -1,7 +1,6 @@
 package com.liga.appparcelsloading.validator;
 
-import com.liga.appparcelsloading.model.Parcel;
-import org.junit.jupiter.api.BeforeEach;
+import com.liga.appparcelsloading.parcel.model.Parcel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 class ParcelValidatorTest {
 
     @Autowired

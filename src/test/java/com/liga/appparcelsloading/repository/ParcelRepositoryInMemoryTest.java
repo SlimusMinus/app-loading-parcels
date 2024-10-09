@@ -1,5 +1,6 @@
 package com.liga.appparcelsloading.repository;
 
+import com.liga.appparcelsloading.parcel.repository.ParcelRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 class ParcelRepositoryInMemoryTest {
 
     @Autowired

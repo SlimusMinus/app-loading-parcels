@@ -1,10 +1,10 @@
 package com.liga.appparcelsloading.algorithm;
 
-import com.liga.appparcelsloading.model.Dimension;
-import com.liga.appparcelsloading.model.Parcel;
-import com.liga.appparcelsloading.model.Truck;
-import com.liga.appparcelsloading.service.ParcelLoaderService;
-import com.liga.appparcelsloading.service.TruckFactoryService;
+import com.liga.appparcelsloading.truck.model.Dimension;
+import com.liga.appparcelsloading.parcel.model.Parcel;
+import com.liga.appparcelsloading.truck.model.Truck;
+import com.liga.appparcelsloading.parcel.service.ParcelLoaderService;
+import com.liga.appparcelsloading.truck.service.TruckFactoryService;
 import com.liga.appparcelsloading.util.ParcelDataMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

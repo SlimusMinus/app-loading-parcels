@@ -1,10 +1,9 @@
 package com.liga.appparcelsloading.telegram;
 
 import com.liga.appparcelsloading.config.BotConfig;
-import com.liga.appparcelsloading.service.ParcelCommandTelegramService;
-import com.liga.appparcelsloading.service.TruckCommandTelegramService;
+import com.liga.appparcelsloading.parcel.service.ParcelCommandTelegramService;
+import com.liga.appparcelsloading.truck.service.TruckCommandTelegramService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
